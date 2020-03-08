@@ -64,7 +64,7 @@ public class CustomerServiceJPATest {
         assertEquals("ace@whitebeardpirat.es", findCustomer.geteMail());
         
         // test delete
-        CustomerService.deleteById(c.getId());
+        CustomerService.deleteById((long) c.getId());
         
         // query after delete
         exceptionRule.expect(ResourceNotFoundException.class);

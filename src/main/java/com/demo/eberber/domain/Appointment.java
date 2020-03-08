@@ -16,44 +16,40 @@ import java.util.Date;
 public class Appointment implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @PrimaryKeyJoinColumn
+    private int id;
 
-    @NotBlank
-    private Long barberId;
+    private int barberId;
 
-    @NotBlank
-    private Long customerId;
+    private int customerId;
 
-    @NotBlank
     private Date appointDate;
 
-    @NotBlank
-    private  Long serviceId;
+    private  int serviceId;
 
-    @NotBlank
-    private Long staffId;
+    private int staffId;
 
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public Long getBarberId() {
+    public int getBarberId() {
         return barberId;
     }
 
-    public void setBarberId(Long barberId) {
+    public void setBarberId(int barberId) {
         this.barberId = barberId;
     }
 
-    public Long getCustomerId() {
+    public int getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Long customerId) {
+    public void setCustomerId(int customerId) {
         this.customerId = customerId;
     }
 
@@ -65,19 +61,19 @@ public class Appointment implements Serializable {
         this.appointDate = appointDate;
     }
 
-    public Long getServiceId() {
+    public int getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(Long serviceId) {
+    public void setServiceId(int serviceId) {
         this.serviceId = serviceId;
     }
 
-    public Long getStaffId() {
+    public int getStaffId() {
         return staffId;
     }
 
-    public void setStaffId(Long staffId) {
+    public void setStaffId(int staffId) {
         this.staffId = staffId;
     }
 }

@@ -4,16 +4,13 @@ import java.io.Serializable;
 import java.sql.Date;
 
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
- 
+import org.springframework.context.annotation.Primary;
+
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "Customer")
@@ -23,38 +20,30 @@ import lombok.NoArgsConstructor;
 public class Customer implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@PrimaryKeyJoinColumn
 	private int id;
-	
-	@NotBlank
+
 	private String name;
-	
-	@NotBlank 
+
 	private String lastName;
-	
-	@NotBlank 
+
 	private String password;
-	
-	@NotBlank 
-	private String phoneNo;
-	
-	@NotBlank 
-	private String adress;
-	
-	@NotBlank 
+
 	private String eMail;
-	
-	@NotBlank 
+
+	private String phoneNo;
+
+	private String adress;
+
 	private String userNeighborhood;
-	
-	@NotBlank 
+
 	private String userDistrict;
-	
-	@NotBlank 
+
 	private String userCity;
 	
 	private Date saveDate;
 	
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -74,9 +63,7 @@ public class Customer implements Serializable {
 		return lastName;
 	}
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+	public void setLastName(String lastName) { this.lastName = lastName; }
 
 	public String getPassword() {
 		return password;

@@ -60,12 +60,12 @@ public class BarberController {
         }
     }
 
-    @PostMapping(value = "/barbers")
+    @PostMapping(value = "/barbers/add")
     public ResponseEntity<Barber> addBarber(@Valid @RequestBody Barber barber)
         throws URISyntaxException {
         try {
             Barber newBarber = barberService.save(barber);
-            return ResponseEntity.created(new URI("/barbers/" + newBarber.getId())).body(barber);
+            return ResponseEntity.created(new URI("/barbers/add/" + newBarber.getId())).body(barber);
         } catch (ResourceAlreadyExistsException ex) {
             logger.error(ex.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).build();//409
@@ -80,6 +80,7 @@ public class BarberController {
                                                @PathVariable long barberId) {
         try {
             barber.setId(barberId);
+
             barberService.update(barber);
             return ResponseEntity.ok().build();
         } catch (ResourceNotFoundException ex) {
@@ -103,7 +104,7 @@ public class BarberController {
         }
     }
 
-    @DeleteMapping(path = "/barbers/{barberId}")
+    @DeleteMapping(path = "/barbers/delete/{barberId}")
     public ResponseEntity<Barber> deleteBarberById(@PathVariable long barberId) {
         try {
             barberService.deleteById(barberId);

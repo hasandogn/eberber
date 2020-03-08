@@ -61,7 +61,7 @@ public class CustomerController {
         }
     }
     
-    @PostMapping(value = "/Customers")
+    @PostMapping(value = "/Customers/add")
     public ResponseEntity<Customer> addCustomer(@Valid @RequestBody Customer Customer) 
             throws URISyntaxException {
         try {
@@ -79,7 +79,7 @@ public class CustomerController {
         }
     }
     
-    @PutMapping(value = "/Customers/{CustomerId}")
+    @PutMapping(value = "/Customers/edit/{CustomerId}")
     public ResponseEntity<Customer> updateCustomer(@Valid @RequestBody Customer Customer, 
             @PathVariable int CustomerId) {
         try {
@@ -97,7 +97,7 @@ public class CustomerController {
         }
     }
     
-    @PatchMapping("/Customers/{CustomerId}")
+    @PatchMapping("/Customers/update/{CustomerId}")
     public ResponseEntity<Void> updateAddress(@PathVariable long CustomerId,
             @RequestBody Address address) {
         /*try {
@@ -112,8 +112,8 @@ public class CustomerController {
  		return ResponseEntity.ok().build();
     }
     
-    @DeleteMapping(path="/Customers/{CustomerId}")
-    public ResponseEntity<Void> deleteCustomerById(@PathVariable int CustomerId) {
+    @DeleteMapping(path="/Customers/delete/{CustomerId}")
+    public ResponseEntity<Void> deleteCustomerById(@PathVariable long CustomerId) {
         try {
             CustomerService.deleteById(CustomerId);
             return ResponseEntity.ok().build();

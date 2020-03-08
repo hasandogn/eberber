@@ -54,7 +54,7 @@ public class CustomerService {
     
     public Customer save(Customer Customer) throws BadResourceException, ResourceAlreadyExistsException {
         if (!StringUtils.isEmpty(Customer.getName())) {
-            if (Customer.getId() != null && existsById(Long.valueOf(Customer.getId()))) { 
+            if (Customer.getId() != 0 && existsById(Long.valueOf(Customer.getId()))) {
                 throw new ResourceAlreadyExistsException("Customer with id: " + Customer.getId() +
                         " already exists");
             }
@@ -67,7 +67,7 @@ public class CustomerService {
         }
     }
     
-    public void update(Customer Customer) 
+    public void update(Customer Customer)
             throws BadResourceException, ResourceNotFoundException {
         if (!StringUtils.isEmpty(Customer.getName())) {
             if (!existsById(Long.valueOf(Customer.getId()))) {
@@ -92,12 +92,12 @@ public class CustomerService {
         customerRepository.save(Customer);
     }
     
-    public void deleteById(long i) throws ResourceNotFoundException {
-        if (!existsById(i)) { 
-            throw new ResourceNotFoundException("Cannot find Customer with id: " + i);
+    public void deleteById(Long id) throws ResourceNotFoundException {
+        if (!existsById(id)) {
+            throw new ResourceNotFoundException("Cannot find Customer with id: " + id);
         }
         else {
-            customerRepository.deleteById((long) i);
+            customerRepository.deleteById(id );
         }
     }
     

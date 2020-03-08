@@ -24,10 +24,10 @@ public class AppointmentSpecification implements Specification<Appointment> {
             p.getExpressions().add(cb.like(root.get("appointDate"), "%" + filter.getAppointDate() + "%"));
         }
 
-        if(filter.getBarberId() != null) {
+        if(filter.getBarberId() != 0) {
             p.getExpressions().add(cb.like(root.get("baarberId"), "%" + filter.getBarberId() + "%"));
         }
-        if (filter.getServiceId() != null) {
+        if (filter.getServiceId() != 0) {
             p.getExpressions().add(cb.like(root.get("Services"), "%" + filter.getServiceId() + "%"));
         }
         return p;

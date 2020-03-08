@@ -25,22 +25,20 @@ public class Barber implements Serializable {
 
     private String barberName;
 
-    @NotBlank
     private String phoneNo;
-    @NotBlank
+
     private String eMail;
-    @NotBlank
+
     private String adress;
-    @NotBlank
+
     private String neighborhood;
-    @NotBlank
+
     private String district;
-    @NotBlank
+
     private String city;
-    @NotBlank
+
     private String staff;
 
-    @Column(length = 4000)
     private String Comment;
 
     public Long getId() {

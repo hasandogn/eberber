@@ -37,7 +37,7 @@ public class AppointmentService {
         return appointments;
     }
     //barber id e gore listelemek
-    public List<Appointment> findAllByBarberId(Long id){
+    public List<Appointment> findAllByBarberId(int id){
         Appointment filter = new Appointment();
         filter.setBarberId(id);
         Specification<Appointment> spec = new AppointmentSpecification(filter);
@@ -58,7 +58,7 @@ public class AppointmentService {
     //Randevu ekleme
     public Appointment save(Appointment appointment) throws BadResourceException, ResourceNotFoundException,ResourceAlreadyExistsException {
         if(!StringUtils.isEmpty(appointment.getAppointDate())){
-            if(appointment.getId() != null && existById(appointment.getId())){
+            if(appointment.getId() != 0 && existById((long) appointment.getId())){
                 throw  new ResourceNotFoundException("Appointment with id " + appointment.getId() + "already exists" );
             }
             return  appointmentRepository.save(appointment);
@@ -71,8 +71,8 @@ public class AppointmentService {
     }
     //Randevu tarih guncelleme
     public void update(Appointment appointment) throws ResourceNotFoundException, BadResourceException {
-        if(!existById(appointment.getBarberId())) {
-            if(!existById(appointment.getId())) {
+        if(!existById((long) appointment.getBarberId())) {
+            if(!existById((long) appointment.getId())) {
                 throw new ResourceNotFoundException("Appointment find Contact with id: " + appointment.getId());
             }
             appointmentRepository.save(appointment);
@@ -85,7 +85,7 @@ public class AppointmentService {
     }
     //Idye gore silme
     public void deleteById(Long id) throws ResourceNotFoundException  {
-        if(!existById(id)) {
+        if(!existById( id)) {
             throw new ResourceNotFoundException("Cannot find appointment with id: " + id);
         }
         else {

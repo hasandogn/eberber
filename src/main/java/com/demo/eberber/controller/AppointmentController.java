@@ -36,7 +36,7 @@ public class AppointmentController {
     @Autowired
     private AppointmentService appointmentService;
 
-    @GetMapping(value = "/Appoinments", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/Appointments", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Appointment>> findAll (
             @RequestParam(value ="page", defaultValue = "1") int pageNumber,
             @RequestParam(required = false) Long id ) {
@@ -44,7 +44,7 @@ public class AppointmentController {
             return ResponseEntity.ok(appointmentService.findAll(pageNumber, 5));
         }
         else {
-            return ResponseEntity.ok(appointmentService.findAllByBarberId(id));
+            return ResponseEntity.ok(appointmentService.findAllByBarberId(Math.toIntExact(id)));
         }
     }
 
@@ -54,8 +54,7 @@ public class AppointmentController {
             Appointment ap = appointmentService.findById(barberId);
             return  ResponseEntity.ok(ap);
         } catch (ResourceNotFoundException e) {
-            logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();//409
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);//409
         }
     }
    /* @GetMapping(value = "appointments/{barberId}/{serviceId}", produces = MediaType.APPLICATION_JSON_VALUE);
@@ -89,12 +88,12 @@ public class AppointmentController {
             return  ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }*/
-    @PostMapping(value = "/barbers")
+    @PostMapping(value = "/Appointments/add")
     public ResponseEntity<Appointment> addAppointment(@Valid @RequestBody Appointment appointment)
         throws URISyntaxException {
         try {
             Appointment newAppointment = appointmentService.save(appointment);
-            return ResponseEntity.created(new URI("/appointments/" + newAppointment.getId())).body(appointment);
+            return ResponseEntity.created(new URI("/Appointments/add/" + newAppointment.getId())).body(appointment);
         } catch (ResourceNotFoundException e) {
             logger.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -104,9 +103,9 @@ public class AppointmentController {
         }
 
     }
-    @PutMapping("/appointments/{appointmentId}")
+    @PutMapping("/appointments/put/{appointmentId}")
     public ResponseEntity<Appointment> updateAppointment(@Valid @RequestBody Appointment appointment,
-                                                         @PathVariable long id) {
+                                                         @PathVariable int id) {
         try {
             appointment.setId(id);
             appointmentService.update(appointment);
@@ -121,10 +120,10 @@ public class AppointmentController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    @DeleteMapping(path = "/appointments/{id}")
+    @DeleteMapping(path = "/appointments/delete/{id}")
     public ResponseEntity<Appointment> deleteAppointmentById(@PathVariable long id ) {
         try {
-            appointmentService.deleteById(id);
+            appointmentService.deleteById( id);
             return ResponseEntity.ok().build();
         } catch (ResourceNotFoundException e) {
             logger.error(e.getMessage());
