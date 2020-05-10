@@ -1,10 +1,15 @@
 package com.demo.eberber.controller;
-
-import com.demo.eberber.domain.Staff;
+import com.demo.eberber.domain.ServiceBarber;
+import com.demo.eberber.exception.ResourceNotFoundException;
 import com.demo.eberber.exception.BadResourceException;
 import com.demo.eberber.exception.ResourceAlreadyExistsException;
-import com.demo.eberber.exception.ResourceNotFoundException;
-import com.demo.eberber.service.StaffService;
+import com.demo.eberber.service.AppointmentService;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import javax.validation.Valid;
+
+import com.demo.eberber.service.ServiceBarberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,37 +17,40 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/Staffs")
-public class StaffController {
+@RequestMapping("/ServiceBarber")
+public class ServiceBarberController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private StaffService staffService;
+    private ServiceBarberService serviceBarberService;
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Staff>> findAll (
+    public ResponseEntity<List<ServiceBarber>> findAll (
             @RequestParam(value ="page", defaultValue = "1") int pageNumber,
             @RequestParam(required = false) Long id ) throws ResourceNotFoundException {
         if(StringUtils.isEmpty(id)) {
-            return ResponseEntity.ok(staffService.findAll(pageNumber, 500));
+            return ResponseEntity.ok(serviceBarberService.findAll(pageNumber, 500));
         }
         else {
-            return ResponseEntity.ok(staffService.findAllByBarberId(Math.toIntExact(id)));
+            return ResponseEntity.ok(serviceBarberService.findAllByBarberId(Math.toIntExact(id)));
         }
     }
 
-    @GetMapping(value = "/barber/{barberId}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Staff>> findStaffsWithBarberId(@PathVariable int barberId) {
+    @GetMapping(value = "/Barber/{barberId}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ServiceBarber>> findServiceWithBarberId(@PathVariable int barberId) {
         try{
-            List<Staff> ap = staffService.findAllByBarberId(barberId);
+            List<ServiceBarber> ap = serviceBarberService.findAllByBarberId(barberId);
             return  ResponseEntity.ok(ap);
         } catch (ResourceNotFoundException e) {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);//409
@@ -50,11 +58,11 @@ public class StaffController {
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<Staff> addStaff(@Valid @RequestBody Staff staff)
+    public ResponseEntity<ServiceBarber> addService(@Valid @RequestBody ServiceBarber serviceBarber)
             throws URISyntaxException {
         try {
-            Staff newStaff = staffService.save(staff);
-            return ResponseEntity.created(new URI("/add/" + newStaff.getId())).body(staff);
+            ServiceBarber newService = serviceBarberService.save(serviceBarber);
+            return ResponseEntity.created(new URI("/Appointments/add/" + newService.getId())).body(serviceBarber);
         } catch (ResourceNotFoundException e) {
             logger.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -66,10 +74,10 @@ public class StaffController {
     }
 
     @PutMapping(value="/put/{id}")
-    public ResponseEntity<Staff> updateStaff(@Valid @RequestBody Staff staff, @PathVariable int id ) {
+    public ResponseEntity<ServiceBarber> updateService(@Valid @RequestBody ServiceBarber serviceBarber,@PathVariable int id ) {
         try {
-            staff.setId(id);
-            staffService.update(staff);
+            serviceBarber.setId((long) id);
+            serviceBarberService.update(serviceBarber);
             return ResponseEntity.ok().build();
         }catch (ResourceNotFoundException ex) {
             // log exception first, then return Not Found (404)
@@ -83,9 +91,9 @@ public class StaffController {
     }
 
     @DeleteMapping(path = "/Appointments/delete/{id}")
-    public ResponseEntity<Staff> deleteStaffById(@PathVariable long id ) {
+    public ResponseEntity<ServiceBarber> deleteService(@PathVariable long id ) {
         try {
-            staffService.deleteById( id);
+            serviceBarberService.deleteById( id);
             return ResponseEntity.ok().build();
         } catch (ResourceNotFoundException e) {
             logger.error(e.getMessage());

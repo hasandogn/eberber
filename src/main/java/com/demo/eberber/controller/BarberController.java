@@ -1,5 +1,6 @@
 package com.demo.eberber.controller;
 
+import com.demo.eberber.Dto.BarberDto.updatePassword;
 import com.demo.eberber.domain.Barber;
 import com.demo.eberber.domain.Address;
 import com.demo.eberber.exception.ResourceNotFoundException;
@@ -75,14 +76,56 @@ public class BarberController {
         }
     }
 
-    @PutMapping("/barbers/{barberId}")
+    @PostMapping(value = "/barbers/login")
+    public ResponseEntity<Barber> loginBarber(@Valid @RequestBody Barber barber)
+            throws URISyntaxException {
+        try {
+            barberService.Login(barber.geteMail(),barber.getPassword());
+            return ResponseEntity.created(new URI("/barbers/login/" + barber.getId())).body(barber);
+        } catch (ResourceNotFoundException ex ) {
+            logger.error(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//400
+        }
+    }
+
+    @PostMapping(value = "/barbers/address")
+    public ResponseEntity<List<Barber>> findAddressBarber(@Valid @RequestBody Barber barber)
+            throws URISyntaxException {
+        try {
+            List<Barber> barbers = barberService.findByAddress(barber.getCity(),barber.getDistrict(), barber.getNeighborhood());
+            return ResponseEntity.ok(barbers);
+        } catch (ResourceNotFoundException ex ) {
+            logger.error(ex.getMessage());
+            return ResponseEntity.notFound().build();
+        } catch (BadResourceException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//400
+        } catch (ResourceAlreadyExistsException e) {
+            logger.error(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping(value = "/barbers/changePassword")
+    public ResponseEntity<updatePassword> changePasswordBarber(@Valid @RequestBody updatePassword barberpassword)
+            throws URISyntaxException {
+        try {
+            barberService.updatePassword(barberpassword.password,barberpassword.controlPassword, barberpassword.id);
+            return ResponseEntity.created(new URI("/barbers/changePassword/" + barberpassword.id)).body(barberpassword);
+        } catch (ResourceNotFoundException ex ) {
+            logger.error(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//400
+        }
+    }
+
+    @PutMapping("/barbers/edit/{barberId}")
     public ResponseEntity<Barber> updateBarber(@Valid @RequestBody Barber barber,
                                                @PathVariable long barberId) {
         try {
             barber.setId(barberId);
 
             barberService.update(barber);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(barber);
         } catch (ResourceNotFoundException ex) {
             logger.error(ex.getMessage());
             return ResponseEntity.notFound().build();
@@ -92,17 +135,19 @@ public class BarberController {
         }
     }
 
-    @PatchMapping("/barbers/{barberId}")
-    public ResponseEntity<Void> updateAdress(@PathVariable long barberId, @RequestBody Address address) {
+    @PatchMapping("/barbers/updateAddress")
+    public ResponseEntity<Address> updateAdress(@RequestBody Address address) {
         try {
-            barberService.updateAdress(barberId, address);
-            return ResponseEntity.ok().build();
+            barberService.updateAdress(address);
+            return ResponseEntity.ok(address);
         } catch (ResourceNotFoundException ex) {
             //ilk log exception sonra 404 hatası
             logger.error(ex.getMessage());
             return  ResponseEntity.notFound().build();
         }
     }
+
+
 
     @DeleteMapping(path = "/barbers/delete/{barberId}")
     public ResponseEntity<Barber> deleteBarberById(@PathVariable long barberId) {

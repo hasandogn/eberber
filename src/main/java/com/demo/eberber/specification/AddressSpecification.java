@@ -17,11 +17,11 @@ public class AddressSpecification implements Specification<Address>{
     public  Predicate toPredicate(Root<Address> root, CriteriaQuery<?> cq, CriteriaBuilder cb) {
         Predicate p = cb.disjunction();
 
-        if(filter.getAddressCity() != null) {
-            p.getExpressions().add(cb.like(root.get("getAddressCity"), "%" + filter.getAddressCity()+ "%"));
+        if(filter.getCity() != null) {
+            p.getExpressions().add(cb.like(root.get("getAddressCity"), "%" + filter.getCity()+ "%"));
         }
-        if(filter.getAdresDetay() != null) {
-            p.getExpressions().add(cb.like(root.get("getAddressDetay"), "%" + filter.getAdresDetay()+ "%"));
+        if(filter.getAddressDetail() != null) {
+            p.getExpressions().add(cb.like(root.get("getAddressDetay"), "%" + filter.getAddressDetail()+ "%"));
         }
 
         return p;

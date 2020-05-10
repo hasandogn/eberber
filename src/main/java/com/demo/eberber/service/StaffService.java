@@ -19,6 +19,76 @@ import org.springframework.util.StringUtils;
 @Service
 public class StaffService {
     @Autowired
-    private  StaffRepository staffRepository;
+    private StaffRepository staffRepository;
+
+    private boolean existById(Long i) {
+        return staffRepository.existsById(i);
+    }
+
+    public Staff findById(long id) throws ResourceNotFoundException {
+        Staff staff = staffRepository.findById(id).orElse(null);
+        if (staff == null)
+            throw new ResourceNotFoundException("Cannot find staff with id :" + id);
+        else return staff;
+    }
+
+    public List<Staff> findAll(int pageNumber, int rowPerPage) throws  ResourceNotFoundException {
+        List<Staff> staff = new ArrayList<>();
+        staffRepository.findAll(PageRequest.of(pageNumber-1,rowPerPage)).forEach(staff::add);
+        if(staff == null)
+            throw new ResourceNotFoundException("No staff were found.\n");
+        else
+            return staff;
+    }
+
+    public List<Staff> findAllByBarberId(int id) throws ResourceNotFoundException{
+        Staff filter = new Staff();
+        filter.setBarberId(id);
+        Specification<Staff> spec = new StaffSpecification(filter);
+
+        List<Staff> appointmentsBarber = new ArrayList<>();
+        Iterable<Staff> i = staffRepository.findByBarberId(id);
+        i.forEach(appointmentsBarber::add);
+        if(appointmentsBarber == null)
+            throw  new ResourceNotFoundException("Cannot find staff with barber id:" + id);
+        else
+            return appointmentsBarber;
+    }
+
+    public Staff save(Staff staff) throws BadResourceException, ResourceNotFoundException,ResourceAlreadyExistsException {
+        if(!StringUtils.isEmpty(staff.getBarberId())){
+            if(staff.getId() != 0 && existById((long) staff.getId()))
+                throw  new ResourceNotFoundException("Staff with id " + staff.getId() + "already exists" );
+            return  staffRepository.save(staff);
+        }
+        else {
+            BadResourceException exc = new BadResourceException("Failed to save staff");
+            exc.addErrorMessage("Staff is null or empty");
+            throw exc;
+        }
+    }
+
+    public Staff update(Staff staff) throws ResourceNotFoundException, BadResourceException {
+        if(!existById((long) staff.getBarberId())) {
+            if(!existById((long) staff.getId()))
+                throw new ResourceNotFoundException("Staff find Contact with id: " + staff.getId());
+            return staffRepository.save(staff);
+        }
+        else {
+            BadResourceException exc = new BadResourceException("Failed to save staff");
+            exc.addErrorMessage("Staff is null or empty");
+            throw exc;
+        }
+    }
+
+    public void deleteById(Long id) throws ResourceNotFoundException  {
+        if(!existById( id)) {
+            throw new ResourceNotFoundException("Cannot find staff with id: " + id);
+        }
+        else {
+            staffRepository.deleteById(id);
+            throw new ResourceNotFoundException("Delete staff with id: " + id);
+        }
+    }
 
 }

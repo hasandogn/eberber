@@ -5,11 +5,9 @@ import java.sql.Date;
 
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.Primary;
 
 @SuppressWarnings("serial")
 @Entity
@@ -17,7 +15,7 @@ import org.springframework.context.annotation.Primary;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer implements Serializable {
+public class Customer implements Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@PrimaryKeyJoinColumn
@@ -33,7 +31,7 @@ public class Customer implements Serializable {
 
 	private String phoneNo;
 
-	private String adress;
+	private String address;
 
 	private String userNeighborhood;
 
@@ -42,6 +40,10 @@ public class Customer implements Serializable {
 	private String userCity;
 	
 	private Date saveDate;
+
+	public class Detail {
+		public int id;
+	}
 	
 	public int getId() {
 		return id;
@@ -82,11 +84,11 @@ public class Customer implements Serializable {
 	}
 
 	public String getAdress() {
-		return adress;
+		return address;
 	}
 
-	public void setAdress(String adress) {
-		this.adress = adress;
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 	public String geteMail() {

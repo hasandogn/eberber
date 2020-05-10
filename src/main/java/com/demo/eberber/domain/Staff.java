@@ -13,26 +13,19 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Staff implements  Serializable{
-    private static final long serialVersionUID = 4048798961366546485L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @PrimaryKeyJoinColumn
+    private long id;
     private String staffName;
-    private Long barberId;
-    private Long appointmentsId;
-    private Long servicesId;
-    private boolean staffSex;
-    private Long revenue;
+    private int barberId;
+    private int revenue;
 
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
-
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -44,43 +37,19 @@ public class Staff implements  Serializable{
         this.staffName = staffName;
     }
 
-    public Long getBarberId() {
+    public int getBarberId() {
         return barberId;
     }
 
-    public void setBarberId(Long barberId) {
+    public void setBarberId(int barberId) {
         this.barberId = barberId;
     }
 
-    public Long getAppointmentsId() {
-        return appointmentsId;
-    }
-
-    public void setAppointmentsId(Long appointmentsId) {
-        this.appointmentsId = appointmentsId;
-    }
-
-    public Long getServicesId() {
-        return servicesId;
-    }
-
-    public void setServicesId(Long servicesId) {
-        this.servicesId = servicesId;
-    }
-
-    public boolean isStaffSex() {
-        return staffSex;
-    }
-
-    public void setStaffSex(boolean staffSex) {
-        this.staffSex = staffSex;
-    }
-
-    public Long getRevenue() {
+    public int getRevenue() {
         return revenue;
     }
 
-    public void setRevenue(Long revenue) {
+    public void setRevenue(int revenue) {
         this.revenue = revenue;
     }
 }

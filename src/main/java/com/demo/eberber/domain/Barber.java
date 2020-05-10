@@ -21,32 +21,42 @@ public class Barber implements Serializable {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long id;
-
+    private long id;
+    @Column(name="barberName")
     private String barberName;
-
+    @Column(name="phoneNo")
     private String phoneNo;
-
+    @Column(name="eMail")
     private String eMail;
-
+    @Column(name="adress")
     private String adress;
-
+    @Column(name="neighborhood")
     private String neighborhood;
-
+    @Column(name="district")
     private String district;
-
+    @Column(name="city")
     private String city;
-
+    @Column(name="password")
+    private String password;
+    @Column(name="staff")
     private String staff;
-
+    @Column(name="Comment")
     private String Comment;
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getBarberName() {

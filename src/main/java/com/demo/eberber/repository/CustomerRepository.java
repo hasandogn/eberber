@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 
 public interface CustomerRepository extends PagingAndSortingRepository<Customer, Long>, 
         JpaSpecificationExecutor<Customer> {
+    Customer findByeMailAndPassword(String eMail, String password);
+    Customer findByeMail(String eMail);
 
 	
 }

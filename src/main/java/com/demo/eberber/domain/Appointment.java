@@ -1,7 +1,6 @@
 package com.demo.eberber.domain;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,19 +16,20 @@ public class Appointment implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @PrimaryKeyJoinColumn
-    private int id;
+    private long id;
+    @Column(name="barberId")
+    private long barberId;
+    @Column(name="customerId")
+    private long customerId;
+    @Column(name="appointmentDate")
+    private Date appointmentDate;
+    @Column(name="serviceId")
+    private int serviceId;
+    @Column(name="staffId")
+    private long staffId;
 
-    private int barberId;
 
-    private int customerId;
-
-    private Date appointDate;
-
-    private  int serviceId;
-
-    private int staffId;
-
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -37,7 +37,7 @@ public class Appointment implements Serializable {
         this.id = id;
     }
 
-    public int getBarberId() {
+    public long getBarberId() {
         return barberId;
     }
 
@@ -45,7 +45,7 @@ public class Appointment implements Serializable {
         this.barberId = barberId;
     }
 
-    public int getCustomerId() {
+    public long getCustomerId() {
         return customerId;
     }
 
@@ -53,12 +53,12 @@ public class Appointment implements Serializable {
         this.customerId = customerId;
     }
 
-    public Date getAppointDate() {
-        return appointDate;
+    public Date getAppointmentDate() {
+        return appointmentDate;
     }
 
-    public void setAppointDate(Date appointDate) {
-        this.appointDate = appointDate;
+    public Date setAppointmentDate(Date appointmentDate) {
+        return this.appointmentDate = appointmentDate;
     }
 
     public int getServiceId() {
@@ -66,10 +66,10 @@ public class Appointment implements Serializable {
     }
 
     public void setServiceId(int serviceId) {
-        this.serviceId = serviceId;
+         this.serviceId = serviceId;
     }
 
-    public int getStaffId() {
+    public long getStaffId() {
         return staffId;
     }
 
@@ -77,4 +77,3 @@ public class Appointment implements Serializable {
         this.staffId = staffId;
     }
 }
-//id, barberid,customerId, appointmentDate,serviceId, staffId

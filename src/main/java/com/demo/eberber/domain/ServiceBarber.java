@@ -19,50 +19,55 @@ public class ServiceBarber implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @NotBlank
+    private long id;
     private String typeName;
+    private int price;
+    private int barberId;
+    private int time;
 
-    @NotBlank
-    private Long price;
-
-    public static long getSerialVersionID() {
-        return serialVersionID;
-    }
-
-    public Long getId() {
-        return id;
-    }
 
     public void setId(Long id) {
         this.id = id;
     }
+    public static long getSerialVersionID() {
+        return serialVersionID;
+    }
 
-    public String getTypeName() {
+    public long getId() {
+        return id;
+    }
+
+    public String getName() {
         return typeName;
     }
 
-    public void setTypeName(String typeName) {
+    public void setName(String typeName) {
         this.typeName = typeName;
     }
 
-    public Long getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public void setPrice(Long price) {
+    public void setPrice(int price) {
         this.price = price;
     }
 
-    public Long getTime() {
+    public int getTime() {
         return time;
     }
 
-    public void setTime(Long time) {
+    public void setTime(int time) {
         this.time = time;
     }
 
-    @NotBlank
-    private Long time;
+    public int getBarberId() {
+        return barberId;
+    }
+
+    public void setBarberId(int barberId) {
+        this.barberId = barberId;
+    }
+
 }
 //id time typeName price

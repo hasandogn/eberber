@@ -20,15 +20,18 @@ public class AppointmentSpecification implements Specification<Appointment> {
     public Predicate toPredicate(Root<Appointment> root, CriteriaQuery<?> cq, CriteriaBuilder cb) {
         Predicate p = cb.disjunction();
 
-        if(filter.getAppointDate() != null) {
-            p.getExpressions().add(cb.like(root.get("appointDate"), "%" + filter.getAppointDate() + "%"));
+        if(filter.getAppointmentDate() != null) {
+            p.getExpressions().add(cb.like(root.get("appointmentDate"), "%" + filter.getAppointmentDate() + "%"));
         }
 
         if(filter.getBarberId() != 0) {
-            p.getExpressions().add(cb.like(root.get("baarberId"), "%" + filter.getBarberId() + "%"));
+            p.getExpressions().add(cb.like(root.get("barberId"), "%" + filter.getBarberId() + "%"));
         }
         if (filter.getServiceId() != 0) {
-            p.getExpressions().add(cb.like(root.get("Services"), "%" + filter.getServiceId() + "%"));
+            p.getExpressions().add(cb.like(root.get("serviceId"), "%" + filter.getServiceId() + "%"));
+        }
+        if(filter.getCustomerId() != 0) {
+            p.getExpressions().add(cb.like(root.get("customerId"), "%" + filter.getServiceId() + "%"));
         }
         return p;
     }

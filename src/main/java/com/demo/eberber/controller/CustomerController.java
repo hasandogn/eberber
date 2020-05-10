@@ -1,5 +1,7 @@
 package com.demo.eberber.controller;
 
+import com.demo.eberber.Dto.BarberDto;
+import com.demo.eberber.Dto.CustomerDto;
 import com.demo.eberber.domain.Address;
 import com.demo.eberber.domain.Customer;
 import com.demo.eberber.exception.BadResourceException;
@@ -50,19 +52,20 @@ public class CustomerController {
             return ResponseEntity.ok(CustomerService.findAllByName(name, pageNumber, ROW_PER_PAGE));
         }
     }
- 
-    @GetMapping(value = "/Customers/{CustomerId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Customer> findCustomerById(@PathVariable int CustomerId) {
+
+    //@PostMapping(value = "/Customers/getCustomer")
+    @GetMapping(value = "/Customers/getCustomer/{CustomerId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Customer> findCustomerById(@PathVariable long CustomerId) {
         try {
-            Customer book = CustomerService.findById(Long.valueOf(CustomerId));
-            return ResponseEntity.ok(book);  // return 200, with json body
+            Customer customer = CustomerService.findById(CustomerId);
+            return ResponseEntity.ok(customer);  // return 200, with json body
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // return 404, with null body
         }
     }
-    
+
     @PostMapping(value = "/Customers/add")
-    public ResponseEntity<Customer> addCustomer(@Valid @RequestBody Customer Customer) 
+    public ResponseEntity<Customer> addCustomer(@Valid @RequestBody Customer Customer)
             throws URISyntaxException {
         try {
             Customer newCustomer = CustomerService.save(Customer);
@@ -111,11 +114,35 @@ public class CustomerController {
     	CustomerService.updateAddress(CustomerId, address);
  		return ResponseEntity.ok().build();
     }
-    
-    @DeleteMapping(path="/Customers/delete/{CustomerId}")
-    public ResponseEntity<Void> deleteCustomerById(@PathVariable long CustomerId) {
+
+    @PostMapping(value = "/Customers/login")
+    public ResponseEntity<Customer> loginCustomer(@Valid @RequestBody Customer customer)
+            throws URISyntaxException {
         try {
-            CustomerService.deleteById(CustomerId);
+            CustomerService.Login(customer.geteMail(),customer.getPassword());
+            return ResponseEntity.created(new URI("/barbers/login/" + customer.getId())).body(customer);
+        } catch (ResourceNotFoundException ex ) {
+            logger.error(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//400
+        }
+    }
+
+    @PostMapping(value = "/Customers/changePassword")
+    public ResponseEntity<CustomerDto.updatePassword> changePasswordBarber(@Valid @RequestBody CustomerDto.updatePassword customerPassword)
+            throws URISyntaxException {
+        try {
+            CustomerService.updatePassword(customerPassword.password,customerPassword.controlPassword, customerPassword.id);
+            return ResponseEntity.created(new URI("/barbers/changePassword/" + customerPassword.id)).body(customerPassword);
+        } catch (ResourceNotFoundException ex ) {
+            logger.error(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//400
+        }
+    }
+
+    @DeleteMapping(path="/Customers/delete/{CustomerId}")
+    public ResponseEntity<Void> deleteCustomerById(@PathVariable int CustomerId) {
+        try {
+            CustomerService.deleteById((long) CustomerId);
             return ResponseEntity.ok().build();
         } catch (ResourceNotFoundException ex) {
             logger.error(ex.getMessage());

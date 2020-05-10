@@ -21,7 +21,9 @@ public class BarberService {
     @Autowired
     private BarberRepository barberRepository;
 
-    private boolean existById(Long i ) { return barberRepository.existsById(i);}
+    private boolean existById(Long i ) {
+        return barberRepository.existsById(i);
+    }
     //barber id yee göre bulmak
     public Barber findById(Long id ) throws ResourceNotFoundException {
         Barber barber = barberRepository.findById(id).orElse(null);
@@ -50,13 +52,67 @@ public class BarberService {
         return barbers;
     }
 
+    public List<Barber> findByAddress(String city, String district, String neighborhood ) throws BadResourceException, ResourceAlreadyExistsException, ResourceNotFoundException {
+        List<Barber> barbers = new ArrayList<>();
+        if((StringUtils.isEmpty(city) && StringUtils.isEmpty(city) && StringUtils.isEmpty(city)) || barbers == null){
+            Iterable<Barber> i=barberRepository.findAll();
+            i.forEach(barbers::add);
+            return barbers;
+        }
+        if(!StringUtils.isEmpty(city)){
+            if(!StringUtils.isEmpty(district)){
+                if(!StringUtils.isEmpty(neighborhood)){
+                    Iterable<Barber> i=barberRepository.findByCityAndNeighborhoodAndDistrict(city, neighborhood, district);
+                    i.forEach(barbers::add);
+                    return barbers;
+                }
+                else {
+                    Iterable<Barber> i=barberRepository.findByCityAndDistrict(city, district);
+                    i.forEach(barbers::add);
+                    return barbers;
+                }
+            }
+            else {
+                Iterable<Barber> i=barberRepository.findByCity(city);
+                i.forEach(barbers::add);
+                return barbers;
+            }
+        }
+        if(!StringUtils.isEmpty(district)){
+            if(!StringUtils.isEmpty(neighborhood)){
+                Iterable<Barber> i=barberRepository.findByDistrictAndNeighborhood(district, neighborhood);
+                i.forEach(barbers::add);
+                return barbers;
+            }
+            else {
+                Iterable<Barber> i=barberRepository.findByDistrict(district);
+                i.forEach(barbers::add);
+                return barbers;
+            }
+        }
+        if(!StringUtils.isEmpty(neighborhood)){
+            Iterable<Barber> i=barberRepository.findByNeighborhood(neighborhood);
+            i.forEach(barbers::add);
+            return barbers;
+        }
+        else{
+            BadResourceException exc = new BadResourceException("Failed to find address");
+            exc.addErrorMessage("Barber is null empty");
+            throw exc;
+        }
+    }
+
     //Ekleme servisi
     public Barber save(Barber barber) throws BadResourceException, ResourceAlreadyExistsException, ResourceNotFoundException {
+        Barber controlBarber = barberRepository.findByeMail(barber.geteMail());
+        if(controlBarber != null)
+            throw  new ResourceNotFoundException("Your e-mail address is in the system.\n");
         if(!StringUtils.isEmpty(barber.getBarberName())){
             if(barber.getId() != null && existById(barber.getId())){
                 throw  new ResourceNotFoundException("Barber with id: "+ barber.getId() + " already exists");
-
             }
+            if(barber.geteMail() == null || barber.getPassword().length() < 6 || barber.getAdress() == null || barber.getCity() == null || barber.getDistrict() == null || barber.getNeighborhood() == null)
+                throw  new ResourceNotFoundException("There is something wrong with your information.\n");
             return barberRepository.save(barber);
         }
         else {
@@ -80,11 +136,47 @@ public class BarberService {
             }
     }
     //Adres guncellemesi
-    public void updateAdress(Long id, Address adress) throws ResourceNotFoundException{
-        Barber barber = findById(id);
-        barber.setAdress(barber.getAdress());
-        barberRepository.save(barber);
+    public void updateAdress(Address adress) throws ResourceNotFoundException{
+        if(adress == null )
+            throw new ResourceNotFoundException("Your information should not be empty.\n.");
+        else {
+            Barber barber = findById(adress.getBarberId());
+            barber.setAdress(adress.getAddressDetail());
+            barber.setCity(adress.getCity());
+            barber.setDistrict(adress.getDistrict());
+            barber.setNeighborhood(adress.getNeighborhood());
+
+            barberRepository.save(barber);
+        }
     }
+
+    public Barber Login(String eMail, String password) throws ResourceNotFoundException{
+
+        if(eMail != null){
+            Barber barber = barberRepository.findByeMail(eMail);
+            if(barber == null)
+                throw new ResourceNotFoundException("Cannot find barber with email: ");
+            if(barber.getPassword() != password)
+                throw new ResourceNotFoundException("You have entered the password incorrectly.\n");
+            else
+                return barber;
+        }
+        else {
+            throw new ResourceNotFoundException("Cannot find barber with email: " + eMail);
+        }
+    }
+
+    public void updatePassword(String password, String controlPassword, long id) throws ResourceNotFoundException{
+        if(password == controlPassword){
+            Barber barber = findById(id);
+            barber.setPassword(password);
+            barberRepository.save(barber);
+        }
+        else {
+            throw new ResourceNotFoundException("Your information should not be empty.\n.");
+        }
+    }
+
     //Id e gore silme islemi
     public void deleteById(Long id) throws ResourceNotFoundException {
         if(!existById(id)) {

@@ -1,25 +1,43 @@
 package com.demo.eberber.domain;
 
 public class Address {
-    private String adresDetay;
     private long id;
     private long barberId;
-    private String addressCity;
+    private String addressDetail;
+    private String city;
+    private String neighborhood;
+    private String district;
 
-    public String getAddressCity() {
-        return addressCity;
+    public String getCity() {
+        return city;
     }
 
-    public void setAddressCity(String addressCity) {
-        this.addressCity = addressCity;
+    public String getNeighborhood() {
+        return neighborhood;
     }
 
-    public String getAdresDetay() {
-        return adresDetay;
+    public void setNeighborhood(String neighborhood) {
+        this.neighborhood = neighborhood;
     }
 
-    public void setAdresDetay(String adresDetay) {
-        this.adresDetay = adresDetay;
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getAddressDetail() {
+        return addressDetail;
+    }
+
+    public void setAddressDetail(String addressDetail) {
+        this.addressDetail = addressDetail;
     }
 
     public long getBarberId() {

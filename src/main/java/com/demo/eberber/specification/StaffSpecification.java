@@ -15,6 +15,15 @@ public class StaffSpecification  implements Specification<Staff>{
     }
     @Override
     public Predicate toPredicate(Root<Staff> root, CriteriaQuery<?> cq, CriteriaBuilder cb) {
-        return null;
+        Predicate p = cb.disjunction();
+
+        if (filter.getBarberId() != 0) {
+            p.getExpressions().add(cb.like(root.get("lastName"), "%" + filter.getBarberId() + "%"));
+        }
+
+        if (filter.getStaffName() != null) {
+            p.getExpressions().add(cb.like(root.get("adress"), "%" + filter.getStaffName() + "%"));
+        }
+        return p;
     }
 }

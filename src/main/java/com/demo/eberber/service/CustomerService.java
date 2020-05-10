@@ -29,7 +29,7 @@ public class CustomerService {
     }
     
     public Customer findById(Long customerId) throws ResourceNotFoundException {
-        Customer Customer = customerRepository.findById(Long.valueOf(customerId)).orElse(null);
+        Customer Customer = customerRepository.findById(customerId).orElse(null);
         if (Customer==null) {
             throw new ResourceNotFoundException("Cannot find Customer with id: " + customerId);
         }
@@ -53,11 +53,16 @@ public class CustomerService {
     }
     
     public Customer save(Customer Customer) throws BadResourceException, ResourceAlreadyExistsException {
+        Customer customer = customerRepository.findByeMail(Customer.geteMail());
+        if(customer != null)
+            throw  new ResourceAlreadyExistsException("Your e-mail address is in the system.\n");
         if (!StringUtils.isEmpty(Customer.getName())) {
             if (Customer.getId() != 0 && existsById(Long.valueOf(Customer.getId()))) {
                 throw new ResourceAlreadyExistsException("Customer with id: " + Customer.getId() +
                         " already exists");
             }
+            if(Customer.geteMail() == null || Customer.getPassword().length() < 6 || Customer.getAdress() == null || Customer.getUserCity() == null || Customer.getUserNeighborhood() == null || Customer.getUserDistrict() == null)
+                throw new ResourceAlreadyExistsException("Your information was entered incorrectly.\n");
             return customerRepository.save(Customer);
         }
         else {
@@ -100,11 +105,27 @@ public class CustomerService {
             customerRepository.deleteById(id );
         }
     }
-    
-    public Long count() {
-        return customerRepository.count();
+
+    public void Login(String eMail, String password) throws ResourceNotFoundException{
+        Customer result = customerRepository.findByeMailAndPassword(eMail, password);
+        if(result != null){
+            customerRepository.findByeMailAndPassword(eMail, password);
+        }
+        else {
+            throw new ResourceNotFoundException("Cannot find customer with email: " + eMail);
+        }
     }
 
+    public void updatePassword(String password, String controlPassword, long id) throws ResourceNotFoundException{
+        if(password == controlPassword){
+            Customer customer = findById(id);
+            customer.setPassword(password);
+            customerRepository.save(customer);
+        }
+        else {
+            throw new ResourceNotFoundException("Your information should not be empty.\n.");
+        }
+    }
 	public void updateAddress(long customerId, Address address) {
 		// TODO Auto-generated method stub
 		
