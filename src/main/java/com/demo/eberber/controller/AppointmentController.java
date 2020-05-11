@@ -1,5 +1,6 @@
 package com.demo.eberber.controller;
 
+import com.demo.eberber.Dto.AppointmentDto;
 import com.demo.eberber.domain.Appointment;
 import com.demo.eberber.Dto.AppointmentDto.*;
 import com.demo.eberber.exception.ResourceNotFoundException;
@@ -8,6 +9,8 @@ import com.demo.eberber.exception.ResourceAlreadyExistsException;
 import com.demo.eberber.service.AppointmentService;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import javax.validation.Valid;
@@ -120,6 +123,65 @@ public class AppointmentController {
         }
     }
 
+    @PostMapping(value = "/Appointments/dateBefore/customer", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Appointment>> findCustomerDateBefore(@RequestBody Appointment appointment) {
+        try{
+            return  ResponseEntity.ok(appointmentService.findByCustomerDateBefore(appointment.getCustomerId(), appointment.getAppointmentDate()));
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    @PostMapping(value = "/Appointments/monthly/customer", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Appointment>> findCustomerMonthly(@RequestBody Appointment appointment) {
+        try{
+            return  ResponseEntity.ok(appointmentService.findByCustomerIdMonthly(appointment.getCustomerId()));
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+    @PostMapping(value = "/Appointments/monthly/barber", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Appointment>> findBarberMonthly(@RequestBody Appointment appointment) {
+        try{
+            return  ResponseEntity.ok(appointmentService.findByBarberIdMonthly(appointment.getBarberId()));
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    @PostMapping(value = "/Appointments/monthly/staff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Appointment>> findStaffMonthly(@RequestBody Appointment appointment) {
+        try{
+            return  ResponseEntity.ok(appointmentService.findByStaffIdMonthly(appointment.getStaffId()));
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    @PostMapping(value = "/Appointments/dateBefore/barber", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Appointment>> findBarberDateBefore(@RequestBody Appointment appointment) {
+        try{
+            return  ResponseEntity.ok(appointmentService.findByBarberDateBefore(appointment.getBarberId(), appointment.getAppointmentDate()));
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
+    @PostMapping(value = "/Appointments/dateBefore/staff", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Appointment>> findStaffDateBefore(@RequestBody Appointment appointment) {
+        try{
+            return  ResponseEntity.ok(appointmentService.findByBarberDateBefore(appointment.getStaffId(), appointment.getAppointmentDate()));
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+    }
+
 
     @PostMapping(value = "/Appointments/add")
     public ResponseEntity<Appointment> addAppointment(@Valid @RequestBody Appointment appointment)
@@ -162,9 +224,5 @@ public class AppointmentController {
             return ResponseEntity.notFound().build();
         }
     }
-        /* @GetMapping("/students/{studentId}/courses/{courseId}")
-    public Appointment retrieveDetailsForCourse(@PathVariable String studentId,
-                                           @PathVariable String courseId) {
-        return appointmentService.findDateandBarberId(studentId, courseId);
-    }*/
+
 }

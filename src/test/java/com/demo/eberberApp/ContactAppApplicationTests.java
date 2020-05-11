@@ -21,7 +21,7 @@ class CustomerAppApplicationTests {
 	 *
 	 */
 	@Autowired
-	private com.demo.eberber.service.CustomerService CustomerService;
+	private CustomerService CustomerService;
 
 	@Rule
 	public ExpectedException exceptionRule = ExpectedException.none();

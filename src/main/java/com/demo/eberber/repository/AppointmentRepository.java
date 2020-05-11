@@ -13,4 +13,14 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
     List<Appointment> findByAppointmentDateAndBarberId(Date appointmentDate, long id);
     List<Appointment> findByAppointmentDateAndCustomerId(Date appointmentDate, long id);
     List<Appointment> findByAppointmentDateAndStaffId(Date appointmentDate, long id);
+    List<Appointment> findByAppointmentDateBetween(Date startDate, Date endDate);
+    List<Appointment> findByBarberIdAndAppointmentDateBetween(long barberId, Date startDate, Date endDate);
+    List<Appointment> findByStaffIdAndAppointmentDateBetween(long staffId, Date startDate, Date endDate);
+    List<Appointment> findByCustomerIdAndAppointmentDateBetween(long customerId, Date startDate, Date endDate);
+    List<Appointment> findByCustomerIdAndAppointmentDateBefore(long customerId, Date AppointmentDate);
+    List<Appointment> findByBarberIdAndAppointmentDateBefore(long barberId, Date appointmentDate);
+    List<Appointment> findByStaffIdAndAppointmentDateBefore(long staffId, Date appointmentDate);
+    List<Appointment> findByBarberIdAndAppointmentDateAfter(long staffId, Date appointmentDate);
+    List<Appointment> findByStaffIdAndAppointmentDateAfter(long staffId, Date appointmentDate);
+    List<Appointment> findByCustomerIdAndAppointmentDateAfter(long customerId, Date appointmentDate);
 }

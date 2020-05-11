@@ -72,6 +72,11 @@ public class BarberService {
                     return barbers;
                 }
             }
+            else if(!StringUtils.isEmpty(neighborhood)){
+                Iterable<Barber> i=barberRepository.findByCityAndNeighborhood(city, neighborhood);
+                i.forEach(barbers::add);
+                return barbers;
+            }
             else {
                 Iterable<Barber> i=barberRepository.findByCity(city);
                 i.forEach(barbers::add);

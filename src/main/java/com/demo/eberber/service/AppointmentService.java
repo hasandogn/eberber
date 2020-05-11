@@ -7,10 +7,13 @@ import com.demo.eberber.exception.ResourceAlreadyExistsException;
 import com.demo.eberber.exception.ResourceNotFoundException;
 import com.demo.eberber.repository.AppointmentRepository;
 import com.demo.eberber.specification.AppointmentSpecification;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -131,6 +134,111 @@ public class AppointmentService {
             return appointmentsBarber;
     }
 
+    public List<Appointment> filterDateBetween(Date startDate, Date endDate) throws ResourceNotFoundException {
+        List<Appointment> appointmentsFilter = new ArrayList<>();
+        Iterable<Appointment> i = appointmentRepository.findByAppointmentDateBetween(startDate, endDate);
+        i.forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null)
+            throw  new ResourceNotFoundException("No appointment was found between two dates\n");
+        else
+            return appointmentsFilter;
+    }
+
+    public List<Appointment> findByCustomerDateBefore(long customerId, Date date) throws ResourceNotFoundException {
+        List<Appointment> appointmentsFilter = new ArrayList<>();
+        Iterable<Appointment> i = appointmentRepository.findByCustomerIdAndAppointmentDateBefore(customerId, date);
+        i.forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null)
+            throw  new ResourceNotFoundException("No appointment was found between the two dates of the employee.\n");
+        else
+            return appointmentsFilter;
+    }
+
+    public List<Appointment> findByBarberDateBefore(long barberId, Date date) throws ResourceNotFoundException {
+        List<Appointment> appointmentsFilter = new ArrayList<>();
+        Iterable<Appointment> i = appointmentRepository.findByBarberIdAndAppointmentDateBefore(barberId, date);
+        i.forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null)
+            throw  new ResourceNotFoundException("No appointment was found between the two dates of the employee.\n");
+        else
+            return appointmentsFilter;
+    }
+
+    public List<Appointment> findByStaffDateBefore(long staffId, Date date) throws ResourceNotFoundException {
+        List<Appointment> appointmentsFilter = new ArrayList<>();
+        Iterable<Appointment> i = appointmentRepository.findByStaffIdAndAppointmentDateBefore(staffId, date);
+        i.forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null)
+            throw  new ResourceNotFoundException("No appointment was found between the two dates of the employee.\n");
+        else
+            return appointmentsFilter;
+    }
+
+    public List<Appointment> filterDateBetweenByStaffId(long staffId, Date startDate, Date endDate) throws ResourceNotFoundException {
+        List<Appointment> appointmentsFilter = new ArrayList<>();
+        Iterable<Appointment> i = appointmentRepository.findByStaffIdAndAppointmentDateBetween(staffId, startDate, endDate);
+        i.forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null)
+            throw  new ResourceNotFoundException("No appointment was found between the two dates of the employee.\n");
+        else
+            return appointmentsFilter;
+    }
+
+    public List<Appointment> filterDateBetweenByBarberId(long barberId, Date startDate, Date endDate) throws ResourceNotFoundException {
+        List<Appointment> appointmentsFilter = new ArrayList<>();
+        Iterable<Appointment> i = appointmentRepository.findByBarberIdAndAppointmentDateBetween(barberId, startDate, endDate);
+        i.forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null)
+            throw  new ResourceNotFoundException("No appointment was found between the two dates of the barber.\n");
+        else
+            return appointmentsFilter;
+    }
+
+    public List<Appointment> filterDateBetweenByCustomerId(long customerId, Date startDate, Date endDate) throws ResourceNotFoundException {
+        List<Appointment> appointmentsFilter = new ArrayList<>();
+        Iterable<Appointment> i = appointmentRepository.findByCustomerIdAndAppointmentDateBetween(customerId, startDate, endDate);
+        i.forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null)
+            throw  new ResourceNotFoundException("No appointment was found between the two dates of the customer.\n");
+        else
+            return appointmentsFilter;
+    }
+
+    public List<Appointment> findByStaffIdMonthly(long staffId) throws ResourceNotFoundException {
+        List<Appointment> appointmentsFilter = new ArrayList<>();
+        Date date = new Date();
+        Date lastMonth = DateUtils.addMonths(date, -1);
+        Iterable<Appointment> i = appointmentRepository.findByStaffIdAndAppointmentDateAfter(staffId, lastMonth);
+        i.forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null)
+            throw  new ResourceNotFoundException("No appointment was found after the dates of the employee.\n");
+        else
+            return appointmentsFilter;
+    }
+
+    public List<Appointment> findByBarberIdMonthly(long barberId) throws ResourceNotFoundException {
+        List<Appointment> appointmentsFilter = new ArrayList<>();
+        Date date = new Date();
+        Date lastMonth = DateUtils.addMonths(date, -1);
+        Iterable<Appointment> i = appointmentRepository.findByBarberIdAndAppointmentDateAfter(barberId, lastMonth);
+        i.forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null)
+            throw  new ResourceNotFoundException("No appointment was found monthly the dates of the barber.\n");
+        else
+            return appointmentsFilter;
+    }
+
+    public List<Appointment> findByCustomerIdMonthly(long customerId) throws ResourceNotFoundException {
+        List<Appointment> appointmentsFilter = new ArrayList<>();
+        Date date = new Date();
+        Date lastMonth = DateUtils.addMonths(date, -1);
+        Iterable<Appointment> i = appointmentRepository.findByCustomerIdAndAppointmentDateAfter(customerId, lastMonth);
+        i.forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null)
+            throw  new ResourceNotFoundException("No appointment was found after the dates of the customer.\n");
+        else
+            return appointmentsFilter;
+    }
 
 
     //Randevu ekleme
@@ -148,8 +256,8 @@ public class AppointmentService {
     }
     //Randevu tarih guncelleme
     public Appointment update(Appointment appointment) throws ResourceNotFoundException, BadResourceException {
-        if(!existById((long) appointment.getBarberId())) {
-            if(!existById((long) appointment.getId()))
+        if(!existById(appointment.getBarberId())) {
+            if(!existById( appointment.getId()))
                 throw new ResourceNotFoundException("Appointment find Contact with id: " + appointment.getId());
             return appointmentRepository.save(appointment);
         }
