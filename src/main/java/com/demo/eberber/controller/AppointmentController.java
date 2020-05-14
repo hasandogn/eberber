@@ -196,7 +196,6 @@ public class AppointmentController {
             logger.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-
     }
     @PutMapping(value="/Appointments/put/{id}")
     public ResponseEntity<Appointment> updateAppointment(@Valid @RequestBody Appointment appointment,@PathVariable int id ) {
