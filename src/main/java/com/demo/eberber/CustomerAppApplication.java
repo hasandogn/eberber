@@ -15,8 +15,7 @@ public class CustomerAppApplication {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/barbers").allowedOrigins("http://localhost:3000");
-				registry.addMapping("/").allowedOrigins("https://e-berber-admin.now.sh");
+				registry.addMapping("/").allowedOrigins("http://localhost:3000");
 			}
 		};
 	}
