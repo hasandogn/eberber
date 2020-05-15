@@ -67,9 +67,6 @@ public class BarberController {
         try {
             Barber newBarber = barberService.save(barber);
             return ResponseEntity.created(new URI("/barbers/add/" + newBarber.getId())).body(barber);
-        } catch (ResourceAlreadyExistsException ex) {
-            logger.error(ex.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();//409
         } catch (BadResourceException | ResourceNotFoundException ex ) {
             logger.error(ex.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//400

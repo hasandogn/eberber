@@ -108,7 +108,7 @@ public class BarberService {
     }
 
     //Ekleme servisi
-    public Barber save(Barber barber) throws BadResourceException, ResourceAlreadyExistsException, ResourceNotFoundException {
+    public Barber save(Barber barber) throws BadResourceException, ResourceNotFoundException {
         Barber controlBarber = barberRepository.findByeMail(barber.geteMail());
         if(controlBarber != null)
             throw  new ResourceNotFoundException("Your e-mail address is in the system.\n");
@@ -116,7 +116,7 @@ public class BarberService {
             if(barber.getId() != null && existById(barber.getId())){
                 throw  new ResourceNotFoundException("Barber with id: "+ barber.getId() + " already exists");
             }
-            if(barber.geteMail() == null || barber.getPassword().length() < 6 || barber.getAdress() == null || barber.getCity() == null || barber.getDistrict() == null || barber.getNeighborhood() == null)
+            if( barber.getPassword().length() < 6 )
                 throw  new ResourceNotFoundException("There is something wrong with your information.\n");
             return barberRepository.save(barber);
         }
