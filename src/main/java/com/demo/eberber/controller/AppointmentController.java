@@ -9,6 +9,7 @@ import com.demo.eberber.exception.ResourceAlreadyExistsException;
 import com.demo.eberber.service.AppointmentService;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -195,6 +196,9 @@ public class AppointmentController {
         } catch (BadResourceException | ResourceAlreadyExistsException e) {
             logger.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
     @PutMapping(value="/Appointments/put/{id}")
@@ -218,7 +222,7 @@ public class AppointmentController {
         try {
             appointmentService.deleteById( id);
             return ResponseEntity.ok().build();
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException | BadResourceException | ParseException e) {
             logger.error(e.getMessage());
             return ResponseEntity.notFound().build();
         }

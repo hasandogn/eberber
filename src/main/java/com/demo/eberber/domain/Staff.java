@@ -18,8 +18,35 @@ public class Staff implements  Serializable{
     @PrimaryKeyJoinColumn
     private long id;
     private String staffName;
-    private int barberId;
-    private int revenue;
+    private long barberId;
+    private long revenue;
+    private String telNo;
+    private String color;
+    private String eMail;
+
+    public String getTelNo() {
+        return telNo;
+    }
+
+    public void setTelNo(String telNo) {
+        this.telNo = telNo;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String geteMail() {
+        return eMail;
+    }
+
+    public void seteMail(String eMail) {
+        this.eMail = eMail;
+    }
 
     public long getId() {
         return id;
@@ -37,19 +64,19 @@ public class Staff implements  Serializable{
         this.staffName = staffName;
     }
 
-    public int getBarberId() {
+    public long getBarberId() {
         return barberId;
     }
 
-    public void setBarberId(int barberId) {
+    public void setBarberId(long barberId) {
         this.barberId = barberId;
     }
 
-    public int getRevenue() {
+    public long getRevenue() {
         return revenue;
     }
 
-    public void setRevenue(int revenue) {
+    public void setRevenue(long revenue) {
         this.revenue = revenue;
     }
 }

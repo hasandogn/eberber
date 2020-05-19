@@ -2,10 +2,15 @@ package com.demo.eberber.repository;
 
 import com.demo.eberber.domain.Appointment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import java.util.Date;
 import java.util.List;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
+    @Query(value = "select * from appointment ap where ap.id=:id", nativeQuery = true)
+    Appointment AppointmentfindById(@Param(("id")) long id);
     List<Appointment> findByBarberId(long barberId);
     List<Appointment> findByAppointmentDate(Date appointmentDate);
     List<Appointment> findByCustomerId(long id);
@@ -23,4 +28,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
     List<Appointment> findByBarberIdAndAppointmentDateAfter(long staffId, Date appointmentDate);
     List<Appointment> findByStaffIdAndAppointmentDateAfter(long staffId, Date appointmentDate);
     List<Appointment> findByCustomerIdAndAppointmentDateAfter(long customerId, Date appointmentDate);
+    List<Integer> findByStaffIdAndAppointmentDate(long staffId,Date appointmentDate);
 }

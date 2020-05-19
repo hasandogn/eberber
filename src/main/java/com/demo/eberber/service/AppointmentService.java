@@ -2,16 +2,24 @@ package com.demo.eberber.service;
 
 import com.demo.eberber.domain.Appointment;
 import com.demo.eberber.Dto.AppointmentDto.*;
+import com.demo.eberber.domain.HoursStatus;
+import com.demo.eberber.domain.ServiceBarber;
 import com.demo.eberber.exception.BadResourceException;
 import com.demo.eberber.exception.ResourceAlreadyExistsException;
 import com.demo.eberber.exception.ResourceNotFoundException;
 import com.demo.eberber.repository.AppointmentRepository;
+import com.demo.eberber.repository.HoursStatusRepository;
 import com.demo.eberber.specification.AppointmentSpecification;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +37,8 @@ import javax.persistence.criteria.Root;*/
 public class AppointmentService {
     @Autowired
     private AppointmentRepository appointmentRepository;
+    @Autowired
+    private  HoursStatusService hoursStatusService;
 
     private boolean existById(Long i) { return appointmentRepository.existsById(i);}
 
@@ -242,8 +252,9 @@ public class AppointmentService {
 
 
     //Randevu ekleme
-    public Appointment save(Appointment appointment) throws BadResourceException, ResourceNotFoundException,ResourceAlreadyExistsException {
-        if(!StringUtils.isEmpty(appointment.getAppointmentDate())){
+    public Appointment save(Appointment appointment) throws BadResourceException, ResourceNotFoundException, ResourceAlreadyExistsException, ParseException {
+        if(!StringUtils.isEmpty(appointment.getAppointmentDate()) && !StringUtils.isEmpty(appointment.getAppointmentEndDate())){
+            hoursStatusService.whenAddAppointmentUpdate(appointment);
             if(appointment.getId() != 0 && existById(appointment.getId()))
                 throw  new ResourceNotFoundException("Appointment with id " + appointment.getId() + "already exists" );
             return  appointmentRepository.save(appointment);
@@ -267,14 +278,24 @@ public class AppointmentService {
             throw exc;
         }
     }
+    public Appointment appointmentFindById(long id) throws ResourceNotFoundException {
+        if(!existById(id)) {
+            throw new ResourceNotFoundException("Cannot find appointment with id: " + id);
+        }
+        else {
+            Appointment appointmentInfo = appointmentRepository.AppointmentfindById(id);
+            return appointmentInfo;
+        }
+    }
     //Idye gore silme
-    public void deleteById(Long id) throws ResourceNotFoundException  {
+    public void deleteById(Long id) throws ResourceNotFoundException, BadResourceException, ParseException {
         if(!existById( id)) {
             throw new ResourceNotFoundException("Cannot find appointment with id: " + id);
         }
         else {
+            Appointment appointmentInfos = appointmentFindById(id);
+            hoursStatusService.whenDeleteAppointmentUpdate(appointmentInfos);
             appointmentRepository.deleteById(id);
-            throw new ResourceNotFoundException("Delete appointment with id: " + id);
         }
     }
     //Kac adet randevu var

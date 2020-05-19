@@ -40,6 +40,7 @@ public class BarberService {
        // barberRepository.findAll(PageRequest.of(pageNumber-1, rowPerPage)).forEach(barbers::add);
         return barbers;
     }
+
     //Isime gore tum barberleri bulmak
     public List<Barber> findAllByName(String name, int pageNumber, int rowPerPage ) {
         Barber filter = new Barber();

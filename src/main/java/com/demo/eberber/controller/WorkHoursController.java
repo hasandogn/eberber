@@ -1,14 +1,21 @@
 package com.demo.eberber.controller;
 
+import com.demo.eberber.domain.HoursStatus;
 import com.demo.eberber.domain.WorkHours;
 import com.demo.eberber.exception.ResourceNotFoundException;
 import com.demo.eberber.exception.BadResourceException;
 import com.demo.eberber.exception.ResourceAlreadyExistsException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import javax.validation.Valid;
 
+import com.demo.eberber.service.HoursStatusService;
 import com.demo.eberber.service.WorkHoursService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +41,8 @@ public class WorkHoursController {
 
     @Autowired
     private WorkHoursService workHoursService;
+    @Autowired
+    private HoursStatusService hoursStatusService;
 
     @GetMapping(value = "/WorkHours", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<WorkHours>> findAll (
@@ -92,23 +101,27 @@ public class WorkHoursController {
             throws URISyntaxException {
         try {
             WorkHours newWorkHours = workHoursService.save(workHours);
+            hoursStatusService.save(workHours);
             return ResponseEntity.created(new URI("/WorkHours/add/" + newWorkHours.getId())).body(workHours);
-        } catch (BadResourceException | ResourceAlreadyExistsException e) {
+        } catch (BadResourceException | ResourceAlreadyExistsException | ParseException e) {
             logger.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @PutMapping(value="/WorkHours/put")
-    public ResponseEntity<WorkHours> updateWorkHours(@Valid @RequestBody WorkHours workHours ) {
+    public ResponseEntity<WorkHours> updateWorkHours(@Valid @RequestBody WorkHours workHours ) throws ParseException {
         try {
+            WorkHours oldWorkHours = workHoursService.findById(workHours.getId());
+            hoursStatusService.whenDeleteWorkHoursDeleted(oldWorkHours);
+            hoursStatusService.save(workHours);
             workHoursService.update(workHours);
             return ResponseEntity.ok(workHours);
         }catch (ResourceNotFoundException ex) {
             // log exception first, then return Not Found (404)
             logger.error(ex.getMessage());
             return ResponseEntity.notFound().build();
-        } catch (BadResourceException ex) {
+        } catch (BadResourceException | ResourceAlreadyExistsException ex) {
             // log exception first, then return Bad Request (400)
             logger.error(ex.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -120,7 +133,7 @@ public class WorkHoursController {
         try {
             workHoursService.deleteById( id);
             return ResponseEntity.ok().build();
-        } catch (ResourceNotFoundException e) {
+        } catch (ResourceNotFoundException | BadResourceException | ParseException e) {
             logger.error(e.getMessage());
             return ResponseEntity.notFound().build();
         }

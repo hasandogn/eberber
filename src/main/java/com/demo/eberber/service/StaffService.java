@@ -32,16 +32,16 @@ public class StaffService {
         else return staff;
     }
 
-    public List<Staff> findAll(int pageNumber, int rowPerPage) throws  ResourceNotFoundException {
+    public List<Staff> findAll() throws  ResourceNotFoundException {
         List<Staff> staff = new ArrayList<>();
-        staffRepository.findAll(PageRequest.of(pageNumber-1,rowPerPage)).forEach(staff::add);
+        staffRepository.findAll().forEach(staff::add);
         if(staff == null)
             throw new ResourceNotFoundException("No staff were found.\n");
         else
             return staff;
     }
 
-    public List<Staff> findAllByBarberId(int id) throws ResourceNotFoundException{
+    public List<Staff> findAllByBarberId(long id) throws ResourceNotFoundException{
         Staff filter = new Staff();
         filter.setBarberId(id);
         Specification<Staff> spec = new StaffSpecification(filter);
@@ -53,6 +53,15 @@ public class StaffService {
             throw  new ResourceNotFoundException("Cannot find staff with barber id:" + id);
         else
             return appointmentsBarber;
+    }
+
+
+    public List<Long> findStaffIdWithId(long id) {
+        List<Long> staffIds = new ArrayList<>();
+        Iterable<Long> i=staffRepository.findWithBarberId(id);
+        i.forEach(staffIds::add);
+        // barberRepository.findAll(PageRequest.of(pageNumber-1, rowPerPage)).forEach(barbers::add);
+        return staffIds;
     }
 
     public Staff save(Staff staff) throws BadResourceException, ResourceNotFoundException,ResourceAlreadyExistsException {
@@ -69,8 +78,8 @@ public class StaffService {
     }
 
     public Staff update(Staff staff) throws ResourceNotFoundException, BadResourceException {
-        if(!existById((long) staff.getBarberId())) {
-            if(!existById((long) staff.getId()))
+        if(existById(staff.getBarberId())) {
+            if(!existById( staff.getId()))
                 throw new ResourceNotFoundException("Staff find Contact with id: " + staff.getId());
             return staffRepository.save(staff);
         }
@@ -87,7 +96,6 @@ public class StaffService {
         }
         else {
             staffRepository.deleteById(id);
-            throw new ResourceNotFoundException("Delete staff with id: " + id);
         }
     }
 

@@ -23,6 +23,8 @@ public class Appointment implements Serializable {
     private long customerId;
     @Column(name="appointmentDate")
     private Date appointmentDate;
+    @Column(name="appointmentEndDate")
+    private Date appointmentEndDate;
     @Column(name="serviceId")
     private int serviceId;
     @Column(name="staffId")
@@ -75,5 +77,13 @@ public class Appointment implements Serializable {
 
     public void setStaffId(int staffId) {
         this.staffId = staffId;
+    }
+
+    public Date getAppointmentEndDate() {
+        return appointmentEndDate;
+    }
+
+    public void setAppointmentEndDate(Date appointmentEndDate) {
+        this.appointmentEndDate = appointmentEndDate;
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,8 @@ import java.util.List;
 public class WorkHoursService {
     @Autowired
     private WorkHourRepository workHourRepository;
+    @Autowired
+    private HoursStatusService hoursStatusService;
 
     private boolean existsById(long i) {
         return workHourRepository.existsById(i);
@@ -98,6 +101,12 @@ public class WorkHoursService {
         return Customers;
     }
 
+    public List<Long> findIdWithStaffId(long staffId) {
+        List<Long> hooursIds = new ArrayList<>();
+        hooursIds = workHourRepository.findWithStaffId(staffId);
+        return hooursIds;
+    }
+
     public WorkHours save(WorkHours workHours) throws BadResourceException, ResourceAlreadyExistsException {
         if (!StringUtils.isEmpty(workHours.getStartHour())) {
             if (workHours.getId() != 0 && existsById(Long.valueOf(workHours.getId()))) {
@@ -128,11 +137,13 @@ public class WorkHoursService {
         }
     }
 
-    public void deleteById(Long id) throws ResourceNotFoundException {
+    public void deleteById(Long id) throws ResourceNotFoundException, BadResourceException, ParseException {
         if (!existsById(id)) {
             throw new ResourceNotFoundException("Cannot find Customer with id: " + id);
         }
         else {
+            WorkHours workHours = findById(id);
+            hoursStatusService.whenDeleteWorkHoursDeleted(workHours);
             workHourRepository.deleteById(id );
         }
     }
