@@ -89,7 +89,7 @@ public class StaffService {
     }
 
     public void deleteById(Long id) throws ResourceNotFoundException  {
-        if(!existById( id)) {
+        if(existById( id)) {
             throw new ResourceNotFoundException("Cannot find staff with id: " + id);
         }
         else {

@@ -62,7 +62,7 @@ public class ServiceBarberController {
             throws URISyntaxException {
         try {
             ServiceBarber newService = serviceBarberService.save(serviceBarber);
-            return ResponseEntity.created(new URI("/Appointments/add/" + newService.getId())).body(serviceBarber);
+            return ResponseEntity.created(new URI("/Service/add/" + newService.getId())).body(serviceBarber);
         } catch (ResourceNotFoundException e) {
             logger.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).build();

@@ -162,7 +162,7 @@ public class BarberService {
             Barber barber = barberRepository.findByeMail(eMail);
             if(barber == null)
                 throw new ResourceNotFoundException("Cannot find barber with email: ");
-            if(barber.getPassword() != password)
+            if(!barber.getPassword().equals(password))
                 throw new ResourceNotFoundException("You have entered the password incorrectly.\n");
             else
                 return barber;

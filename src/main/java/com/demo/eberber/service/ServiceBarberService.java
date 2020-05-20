@@ -55,7 +55,7 @@ public class ServiceBarberService {
 
     public ServiceBarber save(ServiceBarber serviceBarber) throws BadResourceException, ResourceNotFoundException, ResourceAlreadyExistsException {
         if(!StringUtils.isEmpty(serviceBarber.getPrice())){
-            if(serviceBarber.getId() != 0 && existById((long) serviceBarber.getId()))
+            if(serviceBarber.getId() != 0 && existById( serviceBarber.getId()))
                 throw  new ResourceNotFoundException("Service with id " + serviceBarber.getId() + "already exists" );
             return  serviceBarberRepository.save(serviceBarber);
         }
@@ -67,8 +67,8 @@ public class ServiceBarberService {
     }
 
     public ServiceBarber update(ServiceBarber serviceBarber) throws ResourceNotFoundException, BadResourceException {
-        if(!existById((long) serviceBarber.getBarberId())) {
-            if(!existById((long) serviceBarber.getId()))
+        if(existById((long) serviceBarber.getBarberId())) {
+            if(existById((long) serviceBarber.getId()))
                 throw new ResourceNotFoundException("Appointment find Contact with id: " + serviceBarber.getId());
             return serviceBarberRepository.save(serviceBarber);
         }
