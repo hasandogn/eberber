@@ -61,7 +61,7 @@ public class CustomerService {
                 throw new ResourceAlreadyExistsException("Customer with id: " + Customer.getId() +
                         " already exists");
             }
-            if(Customer.geteMail() == null || Customer.getPassword().length() < 6 || Customer.getAdress() == null || Customer.getUserCity() == null || Customer.getUserNeighborhood() == null || Customer.getUserDistrict() == null)
+            if(Customer.geteMail() == null || Customer.getPassword().length() < 6 )
                 throw new ResourceAlreadyExistsException("Your information was entered incorrectly.\n");
             return customerRepository.save(Customer);
         }
@@ -106,10 +106,10 @@ public class CustomerService {
         }
     }
 
-    public void Login(String eMail, String password) throws ResourceNotFoundException{
+    public Customer Login(String eMail, String password) throws ResourceNotFoundException{
         Customer result = customerRepository.findByeMailAndPassword(eMail, password);
         if(result != null){
-            customerRepository.findByeMailAndPassword(eMail, password);
+            return result;
         }
         else {
             throw new ResourceNotFoundException("Cannot find customer with email: " + eMail);

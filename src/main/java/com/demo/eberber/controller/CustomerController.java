@@ -119,8 +119,7 @@ public class CustomerController {
     public ResponseEntity<Customer> loginCustomer(@Valid @RequestBody Customer customer)
             throws URISyntaxException {
         try {
-            CustomerService.Login(customer.geteMail(),customer.getPassword());
-            return ResponseEntity.created(new URI("/barbers/login/" + customer.getId())).body(customer);
+            return ResponseEntity.ok(CustomerService.Login(customer.geteMail(),customer.getPassword()));
         } catch (ResourceNotFoundException ex ) {
             logger.error(ex.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//400
