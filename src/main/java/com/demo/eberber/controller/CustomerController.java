@@ -1,6 +1,5 @@
 package com.demo.eberber.controller;
 
-import com.demo.eberber.Dto.BarberDto;
 import com.demo.eberber.Dto.CustomerDto;
 import com.demo.eberber.domain.Address;
 import com.demo.eberber.domain.Customer;
@@ -12,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,7 +102,7 @@ public class CustomerController {
     
     @PatchMapping("/Customers/update/{CustomerId}")
     public ResponseEntity<Void> updateAddress(@PathVariable long CustomerId,
-            @RequestBody Address address) {
+            @RequestBody Address address) throws ResourceNotFoundException {
         /*try {
             CustomerService.updateAddress(CustomerId, address);
             return ResponseEntity.ok().build();
@@ -111,7 +111,7 @@ public class CustomerController {
             logger.error(ex.getMessage());
             return ResponseEntity.notFound().build();
         }*/
-    	CustomerService.updateAddress(CustomerId, address);
+    	CustomerService.updateAddress((int) CustomerId, address);
  		return ResponseEntity.ok().build();
     }
 
@@ -126,13 +126,36 @@ public class CustomerController {
         }
     }
 
-    @PostMapping(value = "/Customers/changePassword")
-    public ResponseEntity<CustomerDto.updatePassword> changePasswordBarber(@Valid @RequestBody CustomerDto.updatePassword customerPassword)
+    @PostMapping(value = "/Customers/forgotpassword")
+    public String forgotPasswordCustomer(@Valid @RequestBody Customer eMail)
+            throws URISyntaxException {
+        try{
+            return CustomerService.sendMailForForgotPw(eMail.geteMail());
+        }catch (Exception ex) {
+            logger.error(ex.getMessage());
+            return ex.getMessage();
+        }
+    }
+
+    @PostMapping(value = "/Customers/updatePassword")
+    public ResponseEntity<CustomerDto.updatePassword> updatePasswordCustomer(@Valid @RequestBody CustomerDto.updatePassword customerPassword)
             throws URISyntaxException {
         try {
             CustomerService.updatePassword(customerPassword.password,customerPassword.controlPassword, customerPassword.id);
-            return ResponseEntity.created(new URI("/barbers/changePassword/" + customerPassword.id)).body(customerPassword);
+            return ResponseEntity.created(new URI("/customers/changePassword/" + customerPassword.id)).body(customerPassword);
         } catch (ResourceNotFoundException ex ) {
+            logger.error(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//400
+        }
+    }
+
+    @PostMapping(value = "/Customers/changePassword")
+    public ResponseEntity<Void> changePasswordCustomer(@Valid @RequestBody CustomerDto.changePassword changePassword)
+            throws URISyntaxException {
+        try {
+            CustomerService.changePassword(changePassword);
+            return (ResponseEntity<Void>) ResponseEntity.created(new URI("/customers/changePassword/" + changePassword.eMail));
+        } catch (Exception ex ) {
             logger.error(ex.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//400
         }

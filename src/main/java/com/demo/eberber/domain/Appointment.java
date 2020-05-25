@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "Appointment")
@@ -26,7 +27,7 @@ public class Appointment implements Serializable {
     @Column(name="appointmentEndDate")
     private Date appointmentEndDate;
     @Column(name="serviceId")
-    private int serviceId;
+    private int[] serviceId;
     @Column(name="staffId")
     private long staffId;
 
@@ -63,12 +64,12 @@ public class Appointment implements Serializable {
         return this.appointmentDate = appointmentDate;
     }
 
-    public int getServiceId() {
+    public int[] getServiceId() {
         return serviceId;
     }
 
-    public void setServiceId(int serviceId) {
-         this.serviceId = serviceId;
+    public void setServiceId(int[] serviceId) {
+        this.serviceId = serviceId;
     }
 
     public long getStaffId() {

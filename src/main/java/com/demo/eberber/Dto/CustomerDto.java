@@ -22,4 +22,10 @@ public class CustomerDto {
         public String password;
         public String controlPassword;
     }
+
+    public class changePassword {
+        public String eMail;
+        public String password;
+        public String controlPassword;
+    }
 }

@@ -27,7 +27,7 @@ public class AppointmentSpecification implements Specification<Appointment> {
         if(filter.getBarberId() != 0) {
             p.getExpressions().add(cb.like(root.get("barberId"), "%" + filter.getBarberId() + "%"));
         }
-        if (filter.getServiceId() != 0) {
+        if (filter.getServiceId() == null) {
             p.getExpressions().add(cb.like(root.get("serviceId"), "%" + filter.getServiceId() + "%"));
         }
         if(filter.getCustomerId() != 0) {

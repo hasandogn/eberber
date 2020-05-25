@@ -1,6 +1,7 @@
 package com.demo.eberber.service;
 
 
+import com.demo.eberber.Dto.CustomerDto;
 import com.demo.eberber.domain.Address;
 import com.demo.eberber.domain.Customer;
 import com.demo.eberber.exception.BadResourceException;
@@ -23,7 +24,10 @@ public class CustomerService {
     //yapıcı enjeksiyonlarını kullanan bileşenler yazmak çok kolaydır @Autowired. Tek bir kurucunuz olduğu sürece,
     // Spring bunu otomatik olarak hedeflenen bir hedef olarak görecektir.
     private CustomerRepository customerRepository;
-    
+
+    @Autowired
+    private MailService mailService;
+
     private boolean existsById(Long i) {
         return customerRepository.existsById(i);
     }
@@ -116,6 +120,32 @@ public class CustomerService {
         }
     }
 
+    public String sendMailForForgotPw(String eMail){
+       Customer customer = customerRepository.findByeMail(eMail);
+       if(customer != null){
+           mailService.sendMail(eMail);
+           return "Mail adresinize şifre değiştirme maili gönderilmiştir.";
+       }
+       else{
+           return "Mailiniz yanlış.";
+       }
+
+    }
+    public String changePassword(CustomerDto.changePassword changePassword){
+        Customer resultCustomer;
+        resultCustomer = customerRepository.findByeMail(changePassword.eMail);
+        if(resultCustomer != null) {
+            if (changePassword.password == changePassword.controlPassword) {
+                resultCustomer.setPassword(changePassword.password);
+                customerRepository.save(resultCustomer);
+                return "Şifreniz başarıyla değişti.";
+            } else {
+                return "Şifreniz uyuşmuyor.";
+            }
+        } else {
+            return  "Mailiniz yanlış!";
+        }
+    }
     public void updatePassword(String password, String controlPassword, long id) throws ResourceNotFoundException{
         if(password == controlPassword){
             Customer customer = findById(id);
@@ -126,10 +156,7 @@ public class CustomerService {
             throw new ResourceNotFoundException("Your information should not be empty.\n.");
         }
     }
-	public void updateAddress(long customerId, Address address) {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 
 }

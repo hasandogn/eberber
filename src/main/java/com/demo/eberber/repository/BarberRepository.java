@@ -20,6 +20,7 @@ public interface BarberRepository extends JpaRepository<Barber, Long>,JpaSpecifi
     List<Barber> findByCityAndDistrict(String city, String district);
     List<Barber> findByCityAndNeighborhood(String city, String neighborhood);
     List<Barber> findByCityAndNeighborhoodAndDistrict(String city, String neighborhood, String district);
+    Barber findByEMailAndPassword(String eMail, String password);
 
    /* Barber findEmailBy(String eMail);
     @Override
