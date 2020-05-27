@@ -40,7 +40,6 @@ public class BarberServiceJPATest {
         b.seteMail("abc@123.com");
         b.setNeighborhood("Kemalpaşa Mahallesi");
         b.setPhoneNo("05344343211");
-        b.setStaff("Hasan, Mumtaz, Ferit");
 
         barberService.save(b);
         assertNotNull(b.getId());

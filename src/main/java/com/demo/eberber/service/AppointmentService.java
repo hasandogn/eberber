@@ -254,9 +254,10 @@ public class AppointmentService {
     //Randevu ekleme
     public Appointment save(Appointment appointment) throws BadResourceException, ResourceNotFoundException, ResourceAlreadyExistsException, ParseException {
         if(!StringUtils.isEmpty(appointment.getAppointmentDate()) && !StringUtils.isEmpty(appointment.getAppointmentEndDate())){
-            hoursStatusService.whenAddAppointmentUpdate(appointment);
+            //hoursStatusService.whenAddAppointmentUpdate(appointment);
             if(appointment.getId() != 0 && existById(appointment.getId()))
                 throw  new ResourceNotFoundException("Appointment with id " + appointment.getId() + "already exists" );
+            hoursStatusService.whenAddAppointmentUpdate(appointment);
             return  appointmentRepository.save(appointment);
         }
         else {

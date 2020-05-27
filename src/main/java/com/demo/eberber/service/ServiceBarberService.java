@@ -68,7 +68,7 @@ public class ServiceBarberService {
 
     public ServiceBarber update(ServiceBarber serviceBarber) throws ResourceNotFoundException, BadResourceException {
         if(existById((long) serviceBarber.getBarberId())) {
-            if(existById((long) serviceBarber.getId()))
+            if(!existById((long) serviceBarber.getId()))
                 throw new ResourceNotFoundException("Appointment find Contact with id: " + serviceBarber.getId());
             return serviceBarberRepository.save(serviceBarber);
         }
@@ -85,7 +85,6 @@ public class ServiceBarberService {
         }
         else {
             serviceBarberRepository.deleteById(id);
-            throw new ResourceNotFoundException("Delete service with id: " + id);
         }
     }
 

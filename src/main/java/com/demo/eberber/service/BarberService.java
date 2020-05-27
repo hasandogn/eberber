@@ -110,8 +110,8 @@ public class BarberService {
 
     //Ekleme servisi
     public Barber save(Barber barber) throws BadResourceException, ResourceNotFoundException {
-        Barber controlBarber = barberRepository.findByeMail(barber.geteMail());
-        if(controlBarber != null)
+        //Barber controlBarber = barberRepository.findByeMail(barber.geteMail());
+        if(false)
             throw  new ResourceNotFoundException("Your e-mail address is in the system.\n");
         if(!StringUtils.isEmpty(barber.getBarberName())){
             if(barber.getId() != null && existById(barber.getId())){
@@ -157,7 +157,6 @@ public class BarberService {
     }
 
     public Barber Login(String eMail, String password) throws ResourceNotFoundException{
-
         if(eMail != null){
             Barber barber = barberRepository.findByeMail(eMail);
             if(barber == null)

@@ -40,6 +40,10 @@ public class AppointmentController {
 
     @Autowired
     private AppointmentService appointmentService;
+    @GetMapping("/")
+    public String hello() {
+        return "hello world!";
+    }
 
     @GetMapping(value = "/Appointments", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Appointment>> findAll (

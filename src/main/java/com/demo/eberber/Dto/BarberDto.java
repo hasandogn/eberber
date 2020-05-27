@@ -6,7 +6,7 @@ public class BarberDto {
     }
 
     public class Login {
-        public String mail;
+        public String eMail;
         public String password;
     }
 

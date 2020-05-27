@@ -57,8 +57,8 @@ public class CustomerService {
     }
     
     public Customer save(Customer Customer) throws BadResourceException, ResourceAlreadyExistsException {
-        Customer customer = customerRepository.findByeMail(Customer.geteMail());
-        if(customer != null)
+        //Customer customer = customerRepository.findByeMail(Customer.geteMail());
+        if(false)
             throw  new ResourceAlreadyExistsException("Your e-mail address is in the system.\n");
         if (!StringUtils.isEmpty(Customer.getName())) {
             if (Customer.getId() != 0 && existsById(Long.valueOf(Customer.getId()))) {

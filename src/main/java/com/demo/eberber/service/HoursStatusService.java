@@ -150,7 +150,9 @@ public class HoursStatusService {
                 String hour = formatHour.format(dt3);
                 HoursStatus hoursStatus = new HoursStatus();
                 hoursStatus = hoursStatusRepository.findByStaffIdAndDayAndHour(appointment.getStaffId(), day, hour);
-                hoursStatus.setEmptyIsHours("true");
+                if(hoursStatus != null){
+                    hoursStatus.setEmptyIsHours("true");
+                }
                 try {
                     update(hoursStatus);
                 } catch (BadResourceException e) {

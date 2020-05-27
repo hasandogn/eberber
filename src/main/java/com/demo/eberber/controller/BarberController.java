@@ -1,5 +1,6 @@
 package com.demo.eberber.controller;
 
+import com.demo.eberber.Dto.BarberDto;
 import com.demo.eberber.Dto.BarberDto.updatePassword;
 import com.demo.eberber.domain.Barber;
 import com.demo.eberber.domain.Address;
@@ -74,11 +75,10 @@ public class BarberController {
     }
 
     @PostMapping(value = "/barbers/login")
-    public ResponseEntity<Barber> loginBarber(@Valid @RequestBody Barber barber)
+    public ResponseEntity<Barber> loginBarber(@Valid @RequestBody Barber loginInfo)
             throws URISyntaxException {
         try {
-            barberService.Login(barber.geteMail(),barber.getPassword());
-            return ResponseEntity.created(new URI("/barbers/login/" + barber.getId())).body(barber);
+            return ResponseEntity.ok(barberService.Login(loginInfo.geteMail(),loginInfo.getPassword()));
         } catch (ResourceNotFoundException ex ) {
             logger.error(ex.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//400

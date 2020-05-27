@@ -38,8 +38,6 @@ public class Barber implements Serializable {
     private String city;
     @Column(name="password")
     private String password;
-    @Column(name="staff")
-    private String staff;
     @Column(name="Comment")
     private String Comment;
 
@@ -114,15 +112,6 @@ public class Barber implements Serializable {
     public void setCity(String city) {
         this.city = city;
     }
-
-    public String getStaff() {
-        return staff;
-    }
-
-    public void setStaff(String team) {
-        this.staff = staff;
-    }
-
     public String getComment() {
         return Comment;
     }

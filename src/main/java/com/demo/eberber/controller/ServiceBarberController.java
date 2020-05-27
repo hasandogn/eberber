@@ -77,8 +77,7 @@ public class ServiceBarberController {
     public ResponseEntity<ServiceBarber> updateService(@Valid @RequestBody ServiceBarber serviceBarber,@PathVariable int id ) {
         try {
             serviceBarber.setId((long) id);
-            serviceBarberService.update(serviceBarber);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(serviceBarberService.update(serviceBarber));
         }catch (ResourceNotFoundException ex) {
             // log exception first, then return Not Found (404)
             logger.error(ex.getMessage());
