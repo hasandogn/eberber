@@ -2,10 +2,12 @@ package com.demo.eberber.service;
 
 import com.demo.eberber.domain.Address;
 import com.demo.eberber.domain.Barber;
+import com.demo.eberber.domain.BarberWorkTimes;
 import com.demo.eberber.exception.BadResourceException;
 import com.demo.eberber.exception.ResourceAlreadyExistsException;
 import com.demo.eberber.exception.ResourceNotFoundException;
 import com.demo.eberber.repository.BarberRepository;
+import com.demo.eberber.repository.BarberWorkTimesRepository;
 import com.demo.eberber.specification.BarberSpecification;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -20,6 +22,10 @@ import org.springframework.util.StringUtils;
 public class BarberService {
     @Autowired
     private BarberRepository barberRepository;
+    @Autowired
+    private BarberWorkTimesRepository barberWorkTimesRepository;
+    @Autowired
+    private BarberWorkTimesService barberWorkTimesService;
 
     private boolean existById(Long i ) {
         return barberRepository.existsById(i);
@@ -55,7 +61,7 @@ public class BarberService {
 
     public List<Barber> findByAddress(String city, String district, String neighborhood ) throws BadResourceException, ResourceAlreadyExistsException, ResourceNotFoundException {
         List<Barber> barbers = new ArrayList<>();
-        if((StringUtils.isEmpty(city) && StringUtils.isEmpty(city) && StringUtils.isEmpty(city)) || barbers == null){
+        if((StringUtils.isEmpty(city) && StringUtils.isEmpty(district) && StringUtils.isEmpty(neighborhood)) || barbers == null){
             Iterable<Barber> i=barberRepository.findAll();
             i.forEach(barbers::add);
             return barbers;
@@ -119,7 +125,9 @@ public class BarberService {
             }
             if( barber.getPassword().length() < 6 )
                 throw  new ResourceNotFoundException("There is something wrong with your information.\n");
-            return barberRepository.save(barber);
+            Barber newBarber = barberRepository.save(barber);
+            barberWorkTimesService.saveAutho(newBarber.getId());
+            return newBarber;
         }
         else {
             BadResourceException exc = new BadResourceException("Failed to save barber");
@@ -190,6 +198,10 @@ public class BarberService {
         else {
             barberRepository.deleteById(id);
         }
+    }
+
+    public List<BarberWorkTimes> findBarberWorkTimes(long id){
+        return  barberWorkTimesRepository.findAllByBarberId(id);
     }
     //Kac adet barber var
     public Long count() {

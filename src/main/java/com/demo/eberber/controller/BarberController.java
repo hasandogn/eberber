@@ -4,6 +4,7 @@ import com.demo.eberber.Dto.BarberDto;
 import com.demo.eberber.Dto.BarberDto.updatePassword;
 import com.demo.eberber.domain.Barber;
 import com.demo.eberber.domain.Address;
+import com.demo.eberber.domain.BarberWorkTimes;
 import com.demo.eberber.exception.ResourceNotFoundException;
 import com.demo.eberber.exception.BadResourceException;
 import com.demo.eberber.exception.ResourceAlreadyExistsException;
@@ -58,6 +59,15 @@ public class BarberController {
             Barber ber = barberService.findById(barberId);
             return ResponseEntity.ok(ber);//donus degeri 200 json olarak
         } catch (ResourceNotFoundException ex) {
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);//donus 404 null olarak
+        }
+    }
+
+    @GetMapping(value = "/barbers/workTimes/{barberId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public  Object findBarberWorkTimesById(@PathVariable long barberId) {
+        try {
+            return barberService.findBarberWorkTimes(barberId);//donus degeri 200 json olarak
+        } catch (Exception ex) {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);//donus 404 null olarak
         }
     }
