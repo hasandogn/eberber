@@ -32,14 +32,14 @@ public class CustomerService {
         return customerRepository.existsById(i);
     }
     
-    public Customer findById(Long customerId) throws ResourceNotFoundException {
-        Customer Customer = customerRepository.findById(customerId).orElse(null);
+    public Customer findById(int id) throws ResourceNotFoundException {
+        Customer Customer = customerRepository.findById(id);
         if (Customer==null) {
-            throw new ResourceNotFoundException("Cannot find Customer with id: " + customerId);
+            throw new ResourceNotFoundException("Cannot find Customer with id: " + id);
         }
         else return Customer;
     }
-    
+
     public List<Customer> findAll(int pageNumber, int rowPerPage) {
         List<Customer> Customers = new ArrayList<>();
         customerRepository.findAll(PageRequest.of(pageNumber - 1, rowPerPage)).forEach(Customers::add);
@@ -76,13 +76,13 @@ public class CustomerService {
         }
     }
     
-    public void update(Customer Customer)
+    public Customer update(Customer Customer)
             throws BadResourceException, ResourceNotFoundException {
         if (!StringUtils.isEmpty(Customer.getName())) {
-            if (!existsById(Long.valueOf(Customer.getId()))) {
+            if (Customer.geteMail() == null) {
                 throw new ResourceNotFoundException("Cannot find Customer with id: " + Customer.getId());
             }
-            customerRepository.save(Customer);
+            return customerRepository.save(Customer);
         }
         else {
             BadResourceException exc = new BadResourceException("Failed to save Customer");
@@ -93,12 +93,16 @@ public class CustomerService {
     
     public void updateAddress(int id, Address address) 
             throws ResourceNotFoundException {
-        Customer Customer = findById(Long.valueOf(id));
+        Customer customer = findById(id);
+        customer.setAddress(address.getAddressDetail());
+        customer.setUserCity(address.getCity());
+        customer.setUserDistrict(address.getDistrict());
+        customer.setUserNeighborhood(address.getNeighborhood());
         /*Customer.setAddress1(address.getAddress1());
         Customer.setAddress2(address.getAddress2());
         Customer.setAddress3(address.getAddress3());
         Customer.setPostalCode(address.getPostalCode());*/
-        customerRepository.save(Customer);
+        customerRepository.save(customer);
     }
     
     public void deleteById(Long id) throws ResourceNotFoundException {
@@ -148,7 +152,7 @@ public class CustomerService {
     }
     public void updatePassword(String password, String controlPassword, long id) throws ResourceNotFoundException{
         if(password == controlPassword){
-            Customer customer = findById(id);
+            Customer customer = findById((int) id);
             customer.setPassword(password);
             customerRepository.save(customer);
         }

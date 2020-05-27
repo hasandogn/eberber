@@ -1,9 +1,10 @@
 package com.demo.eberber.controller;
+import com.demo.eberber.Dto.GeneralDto;
 import com.demo.eberber.domain.ServiceBarber;
 import com.demo.eberber.exception.ResourceNotFoundException;
 import com.demo.eberber.exception.BadResourceException;
 import com.demo.eberber.exception.ResourceAlreadyExistsException;
-import com.demo.eberber.service.AppointmentService;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -74,14 +75,14 @@ public class ServiceBarberController {
     }
 
     @PutMapping(value="/put/{id}")
-    public ResponseEntity<ServiceBarber> updateService(@Valid @RequestBody ServiceBarber serviceBarber,@PathVariable int id ) {
+    public Object updateService(@Valid @RequestBody ServiceBarber serviceBarber, @PathVariable int id ) {
         try {
             serviceBarber.setId((long) id);
-            return ResponseEntity.ok(serviceBarberService.update(serviceBarber));
+            return serviceBarberService.update(serviceBarber);
         }catch (ResourceNotFoundException ex) {
             // log exception first, then return Not Found (404)
             logger.error(ex.getMessage());
-            return ResponseEntity.notFound().build();
+            return ex.getMessage();
         } catch (BadResourceException ex) {
             // log exception first, then return Bad Request (400)
             logger.error(ex.getMessage());

@@ -114,7 +114,7 @@ public class BarberService {
         if(false)
             throw  new ResourceNotFoundException("Your e-mail address is in the system.\n");
         if(!StringUtils.isEmpty(barber.getBarberName())){
-            if(barber.getId() != null && existById(barber.getId())){
+            if(barber.getId() == null && !existById(barber.getId())){
                 throw  new ResourceNotFoundException("Barber with id: "+ barber.getId() + " already exists");
             }
             if( barber.getPassword().length() < 6 )

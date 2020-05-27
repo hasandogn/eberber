@@ -40,6 +40,8 @@ public class Barber implements Serializable {
     private String password;
     @Column(name="Comment")
     private String Comment;
+    @Column(name="photo")
+    private String photo;
 
     public void setId(long id) {
         this.id = id;
@@ -120,5 +122,11 @@ public class Barber implements Serializable {
         Comment = comment;
     }
 
+    public String getPhoto() {
+        return photo;
+    }
 
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
 }

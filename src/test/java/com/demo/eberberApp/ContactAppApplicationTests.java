@@ -36,7 +36,7 @@ class CustomerAppApplicationTests {
 		CustomerService.save(c);
 		assertNotNull(c.getId());
 
-		Customer findCustomer = CustomerService.findById(Long.valueOf(c.getId()));
+		Customer findCustomer = CustomerService.findById(c.getId());
 		assertEquals("Portgas D. Ace", findCustomer.getName());
 		assertEquals("ace@whitebeard.com", findCustomer.geteMail());
 
@@ -45,7 +45,7 @@ class CustomerAppApplicationTests {
 		CustomerService.update(c);
 
 		// test after update
-		findCustomer = CustomerService.findById(Long.valueOf(c.getId()));
+		findCustomer = CustomerService.findById(c.getId());
 		assertEquals("ace@whitebeardpirat.es", findCustomer.geteMail());
 
 		// test delete
@@ -53,7 +53,7 @@ class CustomerAppApplicationTests {
 
 		// query after delete
 		exceptionRule.expect(ResourceNotFoundException.class);
-		CustomerService.findById(Long.valueOf(c.getId()));
+		CustomerService.findById(c.getId());
 	}
 
 }

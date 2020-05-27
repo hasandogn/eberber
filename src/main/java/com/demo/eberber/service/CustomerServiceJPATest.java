@@ -51,7 +51,7 @@ public class CustomerServiceJPATest {
         CustomerService.save(c);
         assertNotNull(c.getId());
         
-        Customer findCustomer = CustomerService.findById(Long.valueOf(c.getId()));
+        Customer findCustomer = CustomerService.findById(c.getId());
         assertEquals("Portgas D. Ace", findCustomer.getName());
         assertEquals("ace@whitebeard.com", findCustomer.geteMail());
         
@@ -60,7 +60,7 @@ public class CustomerServiceJPATest {
         CustomerService.update(c);
         
         // test after update
-        findCustomer = CustomerService.findById(Long.valueOf(c.getId()));
+        findCustomer = CustomerService.findById(c.getId());
         assertEquals("ace@whitebeardpirat.es", findCustomer.geteMail());
         
         // test delete
@@ -68,6 +68,6 @@ public class CustomerServiceJPATest {
         
         // query after delete
         exceptionRule.expect(ResourceNotFoundException.class);
-        CustomerService.findById(Long.valueOf(c.getId()));
+        CustomerService.findById(c.getId());
     }    
 }

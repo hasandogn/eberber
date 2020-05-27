@@ -47,6 +47,15 @@ public class StaffController {
             return ResponseEntity.ok(allStaff);
     }
 
+    @GetMapping(value = "/Staffs/getStaff/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Staff> getStaff (@PathVariable Long id) throws ResourceNotFoundException {
+        try{
+            return ResponseEntity.ok(staffService.findById(id));
+        } catch (ResourceNotFoundException ex) {
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);//409
+        }
+    }
+
     @GetMapping(value = "/Staffs/barber/{barberId}",produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Staff>> findStaffsWithBarberId(@PathVariable long barberId) {
         try{

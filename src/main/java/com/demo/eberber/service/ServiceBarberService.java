@@ -1,5 +1,6 @@
 package com.demo.eberber.service;
 
+import com.demo.eberber.Dto.GeneralDto;
 import com.demo.eberber.domain.ServiceBarber;
 import com.demo.eberber.exception.BadResourceException;
 import com.demo.eberber.exception.ResourceAlreadyExistsException;
@@ -68,7 +69,7 @@ public class ServiceBarberService {
 
     public ServiceBarber update(ServiceBarber serviceBarber) throws ResourceNotFoundException, BadResourceException {
         if(existById((long) serviceBarber.getBarberId())) {
-            if(!existById((long) serviceBarber.getId()))
+            if(!existById(serviceBarber.getId()))
                 throw new ResourceNotFoundException("Appointment find Contact with id: " + serviceBarber.getId());
             return serviceBarberRepository.save(serviceBarber);
         }

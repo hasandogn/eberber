@@ -57,7 +57,7 @@ public class CustomerController {
     @GetMapping(value = "/Customers/getCustomer/{CustomerId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Customer> findCustomerById(@PathVariable long CustomerId) {
         try {
-            Customer customer = CustomerService.findById(CustomerId);
+            Customer customer = CustomerService.findById((int) CustomerId);
             return ResponseEntity.ok(customer);  // return 200, with json body
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // return 404, with null body
@@ -87,8 +87,7 @@ public class CustomerController {
             @PathVariable int CustomerId) {
         try {
             Customer.setId(CustomerId);
-            CustomerService.update(Customer);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(CustomerService.update(Customer));
         } catch (ResourceNotFoundException ex) {
             // log exception first, then return Not Found (404)
             logger.error(ex.getMessage());
@@ -100,7 +99,7 @@ public class CustomerController {
         }
     }
     
-    @PatchMapping("/Customers/update/{CustomerId}")
+    @PatchMapping("/Customers/updateAddress/{CustomerId}")
     public ResponseEntity<Void> updateAddress(@PathVariable long CustomerId,
             @RequestBody Address address) throws ResourceNotFoundException {
         /*try {
