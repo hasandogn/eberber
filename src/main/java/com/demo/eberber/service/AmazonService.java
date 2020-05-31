@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.demo.eberber.domain.Barber;
 import com.demo.eberber.exception.ResourceNotFoundException;
+import com.demo.eberber.repository.BarberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,9 @@ public class AmazonService {
     private AmazonS3 s3client;
     @Autowired
     private BarberService barberService;
+    @Autowired
+    private BarberRepository barberRepository;
+
     @Value("${amazonProperties.endpointUrl}")
     private String endpointUrl;
     @Value("${amazonProperties.bucketName}")
@@ -58,9 +62,9 @@ public class AmazonService {
                 .withCannedAcl(CannedAccessControlList.PublicRead));
     }
 
-    public String uploadFile(MultipartFile multipartFile, Long barberId) throws ResourceNotFoundException {
+    public String uploadFile(MultipartFile multipartFile, long barberId) throws ResourceNotFoundException {
         String fileUrl = "";
-        Barber barber = barberService.findById(barberId);
+        Barber barber = barberRepository.findById(barberId);
         try {
             File file = convertMultiPartToFile(multipartFile);
             String fileName = generateFileName(multipartFile);

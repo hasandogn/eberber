@@ -78,7 +78,7 @@ public class StaffService {
     }
 
     public Staff update(Staff staff) throws ResourceNotFoundException, BadResourceException {
-        if(existById(staff.getBarberId())) {
+        if(!existById(staff.getBarberId())) {
             return staffRepository.save(staff);
         }
         else {

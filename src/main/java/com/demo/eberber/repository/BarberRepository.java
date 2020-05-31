@@ -1,5 +1,6 @@
 package com.demo.eberber.repository;
 
+import com.amazonaws.services.dynamodbv2.xspec.B;
 import com.demo.eberber.domain.Barber;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -12,6 +13,8 @@ import java.util.List;
 
 
 public interface BarberRepository extends JpaRepository<Barber, Long>,JpaSpecificationExecutor{
+    Barber findById(long id);
+    List<Barber> findAllByBarberName(String barberName);
     Barber findByeMail(String eMail);
     List<Barber> findByDistrict(String district);
     List<Barber> findByCity(String city);

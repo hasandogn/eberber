@@ -1,11 +1,14 @@
 package com.demo.eberber.controller;
 
+import com.demo.eberber.Dto.GeneralDto;
 import com.demo.eberber.domain.Appointment;
 import com.demo.eberber.domain.HoursStatus;
 import com.demo.eberber.domain.Staff;
 import com.demo.eberber.exception.BadResourceException;
 import com.demo.eberber.exception.ResourceAlreadyExistsException;
 import com.demo.eberber.exception.ResourceNotFoundException;
+import com.demo.eberber.repository.AppointmentRepository;
+import com.demo.eberber.repository.WorkHourRepository;
 import com.demo.eberber.service.AppointmentService;
 import com.demo.eberber.service.HoursStatusService;
 import com.demo.eberber.service.StaffService;
@@ -40,6 +43,10 @@ public class StaffController {
     private WorkHoursService workHoursService;
     @Autowired
     private AppointmentService appointmentService;
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+    @Autowired
+    private WorkHourRepository workHourRepository;
 
     @GetMapping(value = "/Staffs", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Staff>> findAll () throws ResourceNotFoundException {
@@ -68,24 +75,28 @@ public class StaffController {
 
 
     @GetMapping(value = "/Staffs/Weekly/FreeHours/{staffId}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HashMap<String, List<String>>> findByStaffIdWeeklyFreeHours(@PathVariable long staffId) {
+    public ResponseEntity<GeneralDto.Response> findByStaffIdWeeklyFreeHours(@PathVariable long staffId) {
         try{
+            GeneralDto.Response response = new GeneralDto.Response();
             HashMap<String,List<String>> daysAndHours = new HashMap<String, List<String>>();
             daysAndHours = hoursStatusService.freeHoursfindByStaffIdAllWeek(staffId);
-            return  ResponseEntity.ok(daysAndHours);
+            response.data = daysAndHours;
+            return  ResponseEntity.ok(response);
         } catch (ResourceNotFoundException e) {
-            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);//409
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);//409
         }
     }
 
     @PostMapping(value = "/Staffs/Daily/FreeHours",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HashMap<String, List<String>>> findByStaffIdDailyFreeHours(@Valid @RequestBody HoursStatus hoursStatus) {
+    public ResponseEntity<GeneralDto.Response> findByStaffIdDailyFreeHours(@Valid @RequestBody HoursStatus hoursStatus) {
         try{
+            GeneralDto.Response response = new GeneralDto.Response();
             HashMap<String,List<String>> daysAndHours = new HashMap<String, List<String>>();
             daysAndHours = hoursStatusService.freeHoursfindByStaffIdAndDay(hoursStatus.getStaffId(),hoursStatus.getDay());
-            return  ResponseEntity.ok(daysAndHours);
+            response.data = daysAndHours;
+            return  ResponseEntity.ok(response);
         } catch (ResourceNotFoundException e) {
-            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);//409
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);//409
         }
     }
 
@@ -127,7 +138,7 @@ public class StaffController {
         try {
             Date nowDate = new Date();
             List<Appointment> staffAppointments = new ArrayList<>();
-            staffAppointments = appointmentService.findByStaffDateBefore(id,nowDate);
+            staffAppointments = appointmentRepository.findByStaffIdAndAppointmentDateBefore(id,nowDate);
             if(staffAppointments.size() == 0){
                 staffService.deleteById( id);
                 List<Long> workHoursIds = new ArrayList<>();
@@ -177,7 +188,6 @@ public class StaffController {
                     return null;
                 }
             }
-
             staffService.deleteById( id);
             return ResponseEntity.ok().build();
         } catch (ResourceNotFoundException | ParseException | BadResourceException e) {

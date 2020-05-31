@@ -24,68 +24,93 @@ public class ServiceBarberService {
 
     private boolean existById(Long i) { return serviceBarberRepository.existsById(i);}
 
-    public ServiceBarber findById(long id) throws ResourceNotFoundException {
-        ServiceBarber serviceBarber = serviceBarberRepository.findById(id).orElse(null);
-        if(serviceBarber == null)
-            throw new ResourceNotFoundException("Cannot find service with id :" +id);
-        else return serviceBarber;
+    public GeneralDto.Response findById(long id) throws ResourceNotFoundException {
+        GeneralDto.Response result = new GeneralDto.Response();
+        result.data = serviceBarberRepository.findById(id).orElse(null);
+        if(result.data == null){
+            result.Error = true;
+            result.Message = "Hizmet bulunamadı.";
+            return result;
+        }
+        else return result;
     }
 
-    public List<ServiceBarber> findAll(int pageNumber, int rowPerPage) throws  ResourceNotFoundException {
-        List<ServiceBarber> services = new ArrayList<>();
-        serviceBarberRepository.findAll(PageRequest.of(pageNumber-1,rowPerPage)).forEach(services::add);
-        if(services == null)
-            throw new ResourceNotFoundException("No service were found.\n");
-        else
-            return services;
+    public GeneralDto.Response findAll(int pageNumber, int rowPerPage) throws  ResourceNotFoundException {
+        GeneralDto.Response result = new GeneralDto.Response();
+        result.data = serviceBarberRepository.findAll();
+        if(result.data == null){
+            result.Error = true;
+            result.Message = "Herhangi bir hizmet türü bulunmuyor.";
+            return result;
+        }
+        return result;
     }
 
-    public List<ServiceBarber> findAllByBarberId(int id) throws ResourceNotFoundException{
-        ServiceBarber filter = new ServiceBarber();
-        filter.setBarberId(id);
-        Specification<ServiceBarber> spec = new ServiceBarberSpecification(filter);
-
+    public GeneralDto.Response findAllByBarberId(int id) throws ResourceNotFoundException{
+        GeneralDto.Response result = new GeneralDto.Response();
         List<ServiceBarber> appointmentsBarber = new ArrayList<>();
         Iterable<ServiceBarber> i = serviceBarberRepository.findByBarberId(id);
         i.forEach(appointmentsBarber::add);
-        if(appointmentsBarber == null)
-            throw  new ResourceNotFoundException("Cannot find Service with barber id:" + id);
-        else
-            return appointmentsBarber;
+        if(appointmentsBarber == null){
+            result.Error = true;
+            result.data = "Berbere ait hizmet türü bulunamadı.";
+            return result;
+        }
+        else {
+            result.data = appointmentsBarber;
+            return result;
+        }
     }
 
-    public ServiceBarber save(ServiceBarber serviceBarber) throws BadResourceException, ResourceNotFoundException, ResourceAlreadyExistsException {
+    public GeneralDto.Response save(ServiceBarber serviceBarber) throws BadResourceException {
+        GeneralDto.Response result = new GeneralDto.Response();
         if(!StringUtils.isEmpty(serviceBarber.getPrice())){
-            if(serviceBarber.getId() != 0 && existById( serviceBarber.getId()))
-                throw  new ResourceNotFoundException("Service with id " + serviceBarber.getId() + "already exists" );
-            return  serviceBarberRepository.save(serviceBarber);
+            if(serviceBarber.getId() != 0 && existById( serviceBarber.getId())){
+                result.Error = true;
+                result.Message = "Hizmet türü bulunamadı.";
+                return result;
+            }
+            result.data = serviceBarberRepository.save(serviceBarber);
+            return result;
         }
         else {
-            BadResourceException exc = new BadResourceException("Failed to save Service");
-            exc.addErrorMessage("Service is null or empty");
-            throw exc;
+            result.Error = false;
+            result.Message = "Bir şeyler yanlış gitti.";
+            return result;
         }
     }
 
-    public ServiceBarber update(ServiceBarber serviceBarber) throws ResourceNotFoundException, BadResourceException {
-        if(existById((long) serviceBarber.getBarberId())) {
-            if(!existById(serviceBarber.getId()))
-                throw new ResourceNotFoundException("Appointment find Contact with id: " + serviceBarber.getId());
-            return serviceBarberRepository.save(serviceBarber);
+    public GeneralDto.Response update(ServiceBarber serviceBarber) throws ResourceNotFoundException, BadResourceException {
+        GeneralDto.Response result = new GeneralDto.Response();
+        if(!existById((long) serviceBarber.getBarberId())) {
+            if(!existById((long) serviceBarber.getId())){
+                result.Error = true;
+                result.Message = "Randevu bulunamadı.";
+                return result;
+            }
+            ServiceBarber resultData = serviceBarberRepository.save(serviceBarber);
+            result.data = resultData;
+            return result;
         }
         else {
-            BadResourceException exc = new BadResourceException("Failed to save appointment");
-            exc.addErrorMessage("Appointment is null or empty");
-            throw exc;
+            result.Error = true;
+            result.Message = "İşlem yapılırken bir sorun oluştu.";
+            return result;
         }
     }
 
-    public void deleteById(Long id) throws ResourceNotFoundException  {
+
+    public GeneralDto.Response deleteById(Long id) throws BadResourceException {
+        GeneralDto.Response result = new GeneralDto.Response();
         if(!existById( id)) {
-            throw new ResourceNotFoundException("Cannot find service with id: " + id);
+            result.Error = true;
+            result.Message = "Hizmet bulunamadı zaten.";
+            return result;
         }
         else {
             serviceBarberRepository.deleteById(id);
+            result.data = "Hizmet silindi";
+            return result;
         }
     }
 

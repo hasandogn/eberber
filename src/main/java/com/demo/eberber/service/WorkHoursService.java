@@ -1,5 +1,6 @@
 package com.demo.eberber.service;
 
+import com.demo.eberber.Dto.GeneralDto;
 import com.demo.eberber.domain.WorkHours;
 import com.demo.eberber.exception.BadResourceException;
 import com.demo.eberber.exception.ResourceAlreadyExistsException;
@@ -137,14 +138,46 @@ public class WorkHoursService {
         }
     }
 
-    public void deleteById(Long id) throws ResourceNotFoundException, BadResourceException, ParseException {
+    public GeneralDto.Response deleteById(Long id) throws ResourceNotFoundException, BadResourceException, ParseException {
+        GeneralDto.Response result = new GeneralDto.Response();
+        if (!existsById(id)) {
+            result.Error = true;
+            result.Message = "Bir hata oluştu! Lütfen tekrar deneyin.";
+            return result;
+        }
+        else {
+            WorkHours workHours = findById(id);
+            if(workHours != null ) {
+                boolean hourStatusControl = hoursStatusService.whenDeleteWorkHoursDeleted(workHours);
+                if(hourStatusControl == true) {
+                    workHourRepository.deleteById(id );
+                    result.data = workHours;
+                    return result;
+                }
+            }
+            result.Error = true;
+            result.Message = "Çalışma saati bulunamadı.";
+            return result;
+        }
+    }
+   /* public GeneralDto.Response deleteById(Long id) throws ResourceNotFoundException, BadResourceException, ParseException {
+        GeneralDto.Response result = new GeneralDto.Response();
         if (!existsById(id)) {
             throw new ResourceNotFoundException("Cannot find Customer with id: " + id);
         }
         else {
             WorkHours workHours = findById(id);
-            hoursStatusService.whenDeleteWorkHoursDeleted(workHours);
-            workHourRepository.deleteById(id );
+            boolean hourstatusControl =  hoursStatusService.whenDeleteWorkHoursDeleted(workHours);
+            if(hourstatusControl == true) {
+                workHourRepository.deleteById(id );
+                result.data = workHours;
+                return result;
+            }
+            else {
+                result.Error = true;
+                result.Message = "Bu saatte çalışan bulunmuyor!";
+                return result;
+            }
         }
-    }
+    }*/
 }

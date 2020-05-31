@@ -26,4 +26,8 @@ public class BarberWorkTimesService {
         }
     }
 
+    public BarberWorkTimes update(BarberWorkTimes barberWorkTimes){
+        return barberWorkTimesRepository.save(barberWorkTimes);
+    }
+
 }

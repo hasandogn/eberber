@@ -5,7 +5,6 @@ import com.demo.eberber.exception.ResourceNotFoundException;
 import com.demo.eberber.exception.BadResourceException;
 import com.demo.eberber.exception.ResourceAlreadyExistsException;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import javax.validation.Valid;
@@ -37,7 +36,7 @@ public class ServiceBarberController {
     private ServiceBarberService serviceBarberService;
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ServiceBarber>> findAll (
+    public Object findAll (
             @RequestParam(value ="page", defaultValue = "1") int pageNumber,
             @RequestParam(required = false) Long id ) throws ResourceNotFoundException {
         if(StringUtils.isEmpty(id)) {
@@ -49,25 +48,20 @@ public class ServiceBarberController {
     }
 
     @GetMapping(value = "/Barber/{barberId}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ServiceBarber>> findServiceWithBarberId(@PathVariable int barberId) {
+    public Object findServiceWithBarberId(@PathVariable int barberId) {
         try{
-            List<ServiceBarber> ap = serviceBarberService.findAllByBarberId(barberId);
-            return  ResponseEntity.ok(ap);
+            return serviceBarberService.findAllByBarberId(barberId);
         } catch (ResourceNotFoundException e) {
-            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);//409
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);//409
         }
     }
 
     @PostMapping(value = "/add")
-    public ResponseEntity<ServiceBarber> addService(@Valid @RequestBody ServiceBarber serviceBarber)
+    public Object addService(@Valid @RequestBody ServiceBarber serviceBarber)
             throws URISyntaxException {
         try {
-            ServiceBarber newService = serviceBarberService.save(serviceBarber);
-            return ResponseEntity.created(new URI("/Service/add/" + newService.getId())).body(serviceBarber);
-        } catch (ResourceNotFoundException e) {
-            logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        } catch (BadResourceException | ResourceAlreadyExistsException e) {
+                return serviceBarberService.save(serviceBarber);
+        }  catch (BadResourceException e) {
             logger.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -90,14 +84,14 @@ public class ServiceBarberController {
         }
     }
 
-    @DeleteMapping(path = "/Appointments/delete/{id}")
-    public ResponseEntity<ServiceBarber> deleteService(@PathVariable long id ) {
+    @DeleteMapping(path = "/delete/{id}")
+    public Object deleteService(@PathVariable long id ) throws BadResourceException {
         try {
-            serviceBarberService.deleteById( id);
-            return ResponseEntity.ok().build();
-        } catch (ResourceNotFoundException e) {
+
+            return ResponseEntity.ok(serviceBarberService.deleteById( id));
+        } catch (BadResourceException e) {
             logger.error(e.getMessage());
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }

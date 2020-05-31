@@ -16,8 +16,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.temporal.TemporalAccessor;
 import java.util.*;
 
 @Service
@@ -26,8 +24,6 @@ public class HoursStatusService {
     private HoursStatusRepository hoursStatusRepository;
 
     private boolean existById(Long i) { return hoursStatusRepository.existsById(i);}
-
-
 
     public HashMap<String, List<String>> freeHoursfindByStaffIdAndDay (long staffId, String day) throws HttpClientErrorException.BadRequest, ResourceNotFoundException {
             //HourStatusDto.WeeklyHours dayAndHour = null;
@@ -45,21 +41,18 @@ public class HoursStatusService {
     }
 
     public HashMap<String, List<String>> freeHoursfindByStaffIdAllWeek (long staffId) throws HttpClientErrorException.BadRequest, ResourceNotFoundException {
-
         HashMap<String,List<String>> daysAndHours = new HashMap<String, List<String>>();
         List<String> days = new ArrayList<>();
         Iterable<String> daysIterable = hoursStatusRepository.findDistinctByStaffId(staffId);
         daysIterable.forEach(days::add);
-        List<String> hours = new ArrayList<>();
         for(int k = 0; k < days.size() ; k++ ){
+            List<String> hours = new ArrayList<>();
             Iterable<String> i = hoursStatusRepository.findByStaffIdAndDayAndEmptyIsHoursOrderByHourAsc(staffId, days.get(k),"true");
             i.forEach(hours::add);
             daysAndHours.put(days.get(k), hours);
         }
         return daysAndHours;
     }
-
-
 
     //Calisana calisma saati eklendiğinde Uygun randevu saatleri eklenir.
     public void save(WorkHours workHours) throws BadResourceException, ResourceAlreadyExistsException, ParseException {
@@ -87,7 +80,7 @@ public class HoursStatusService {
         }
     }
 
-    public void whenAddAppointmentUpdate (Appointment appointment) throws ParseException, BadResourceException {
+    public boolean whenAddAppointmentUpdate (Appointment appointment) throws ParseException, BadResourceException {
         long quarterHour =  1000 * 60 * 15;
         DateFormat formatHour = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
         DateFormat formatDay = new SimpleDateFormat("EEEE", Locale.ENGLISH);
@@ -98,7 +91,12 @@ public class HoursStatusService {
                 String hour = formatHour.format(dt3);
                 HoursStatus hoursStatus = new HoursStatus();
                 hoursStatus = hoursStatusRepository.findByStaffIdAndDayAndHour(appointment.getStaffId(), day, hour);
-                hoursStatus.setEmptyIsHours("false");
+                if(!StringUtils.isEmpty(hoursStatus)) {
+                    hoursStatus.setEmptyIsHours("false");
+                }
+                else {
+                    return false;
+                }
                 try {
                     update(hoursStatus);
                 } catch (BadResourceException e) {
@@ -107,10 +105,9 @@ public class HoursStatusService {
                     e.printStackTrace();
                 }
             }
+            return true;
         }else {
-            BadResourceException exc = new BadResourceException("Failed to save work hours");
-            exc.addErrorMessage("Dates is null or empty");
-            throw exc;
+            return false;
         }
     }
 
@@ -168,7 +165,7 @@ public class HoursStatusService {
         }
     }
 
-    public void whenDeleteWorkHoursDeleted (WorkHours workHours) throws ParseException, BadResourceException {
+    public boolean whenDeleteWorkHoursDeleted (WorkHours workHours) throws ParseException, BadResourceException {
         long quarterHour =  1000 * 60 * 15;
         DateFormat formatHour = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
         Date startHour = formatHour.parse(workHours.getStartHour());
@@ -179,6 +176,9 @@ public class HoursStatusService {
                 String hour = formatHour.format(dt);
                 HoursStatus hoursStatus = new HoursStatus();
                 hoursStatus = hoursStatusRepository.findByStaffIdAndDayAndHour(workHours.getStaffId(), workHours.getDay(), hour);
+                if(hoursStatus.getEmptyIsHours() == "false" ) {
+                    return false;
+                }
                 try {
                     deleteById(hoursStatus.getId());
                 }
@@ -186,6 +186,7 @@ public class HoursStatusService {
                     e.printStackTrace();
                 }
             }
+            return true;
         }else {
             BadResourceException exc = new BadResourceException("Failed to save work hours");
             exc.addErrorMessage("Dates is null or empty");

@@ -1,5 +1,6 @@
 package com.demo.eberber.service;
 
+import com.demo.eberber.Dto.GeneralDto;
 import com.demo.eberber.domain.Appointment;
 import com.demo.eberber.Dto.AppointmentDto.*;
 import com.demo.eberber.domain.HoursStatus;
@@ -13,9 +14,6 @@ import com.demo.eberber.specification.AppointmentSpecification;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,250 +40,383 @@ public class AppointmentService {
 
     private boolean existById(Long i) { return appointmentRepository.existsById(i);}
 
-    public Appointment findById(long id) throws ResourceNotFoundException {
+    public GeneralDto.Response findById(long id) throws ResourceNotFoundException {
+        GeneralDto.Response result = new GeneralDto.Response();
         Appointment appointment = appointmentRepository.findById(id).orElse(null);
-        if(appointment == null)
-            throw new ResourceNotFoundException("Cannot find Appointment with id :" +id);
-        else return appointment;
+        if(appointment == null){
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else {
+            result.data = appointment;
+            return result;
+        }
     }
     //randevuları listelemek
-    public List<Appointment> findAll(int pageNumber, int rowPerPage) throws  ResourceNotFoundException {
+    public GeneralDto.Response findAll(int pageNumber, int rowPerPage) throws  ResourceNotFoundException {
         List<Appointment> appointments = new ArrayList<>();
+        GeneralDto.Response result = new GeneralDto.Response();
         appointmentRepository.findAll(PageRequest.of(pageNumber-1,rowPerPage)).forEach(appointments::add);
-        if(appointments == null)
-            throw new ResourceNotFoundException("No appointments were found.\n");
-        else
-            return appointments;
+        if(appointments == null){
+            result.Error = true;
+            result.Message = "Randevu bulunmuyor!";
+            return result;
+        }
+        else{
+            result.data = appointments;
+            return result;
+        }
     }
     //barber id e gore listelemek
-    public List<Appointment> findAllByBarberId(long id) throws ResourceNotFoundException{
+    public GeneralDto.Response findAllByBarberId(long id) throws ResourceNotFoundException{
         Appointment filter = new Appointment();
+        GeneralDto.Response result = new GeneralDto.Response();
+
+
         filter.setBarberId((int)id);
         Specification<Appointment> spec = new AppointmentSpecification(filter);
 
         List<Appointment> appointmentsBarber = new ArrayList<>();
         Iterable<Appointment> i = appointmentRepository.findByBarberId(id);
         i.forEach(appointmentsBarber::add);
-        if(appointmentsBarber == null)
-            throw  new ResourceNotFoundException("Cannot find Appointment with barber id:" + id);
-        else
-            return appointmentsBarber;
+        if(appointmentsBarber == null){
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else{
+            result.data = appointmentsBarber;
+            return result;
+        }
     }
 
-    public List<Appointment> findAllByCustomerId(long id) throws ResourceNotFoundException{
+    public GeneralDto.Response findAllByCustomerId(long id) throws ResourceNotFoundException{
         Appointment filter = new Appointment();
+        GeneralDto.Response result = new GeneralDto.Response();
         filter.setCustomerId((int)id);
         Specification<Appointment> spec = new AppointmentSpecification(filter);
 
         List<Appointment> appointmentsCustomer = new ArrayList<>();
         Iterable<Appointment> i = appointmentRepository.findByCustomerId(id);
         i.forEach(appointmentsCustomer::add);
-        if(appointmentsCustomer == null)
-            throw new ResourceNotFoundException("Cannot find Appointments with customer id:" + id);
-        else
-            return appointmentsCustomer;
+        if(appointmentsCustomer == null){
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else {
+            result.data = appointmentsCustomer;
+            return result;
+        }
     }
-    public List<Appointment> findAllByStaffId(long id) throws ResourceNotFoundException{
+    public GeneralDto.Response findAllByStaffId(long id) throws ResourceNotFoundException{
         Appointment filter = new Appointment();
         filter.setCustomerId((int)id);
         Specification<Appointment> spec = new AppointmentSpecification(filter);
-
+        GeneralDto.Response result = new GeneralDto.Response();
         List<Appointment> appointmentsStaff = new ArrayList<>();
         Iterable<Appointment> i = appointmentRepository.findByStaffId(id);
         i.forEach(appointmentsStaff::add);
-        if(appointmentsStaff == null)
-            throw new ResourceNotFoundException("Cannot find Appointments with customer id:" + id);
-        else
-            return appointmentsStaff;
+        if(appointmentsStaff == null){
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else{
+            result.data = appointmentsStaff;
+            return result;
+        }
     }
-    public List<Appointment> findAllByDate(Date appointmentDate) throws ResourceNotFoundException{
+    public GeneralDto.Response findAllByDate(Date appointmentDate) throws ResourceNotFoundException{
         Appointment filter = new Appointment();
         filter.setAppointmentDate(appointmentDate);
         Specification<Appointment> spec = new AppointmentSpecification(filter);
 
         List<Appointment> appointmentsDate = new ArrayList<>();
+        GeneralDto.Response result = new GeneralDto.Response();
         Iterable<Appointment> i = appointmentRepository.findByAppointmentDate(appointmentDate);
         i.forEach(appointmentsDate::add);
-        if(appointmentsDate == null)
-            throw new ResourceNotFoundException("Cannot find Appointments with Date:" + appointmentDate);
-        else
-            return appointmentsDate;
+        if(appointmentsDate == null){
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else{
+            result.data = appointmentDate;
+            return result;
+        }
     }
 
 
     //berber id ile tarihe göre
-    public List<Appointment> findDateandBarberId (Date appointmentDate, long barberId) throws ResourceNotFoundException {
+    public GeneralDto.Response findDateandBarberId (Date appointmentDate, long barberId) throws ResourceNotFoundException {
         List<Appointment> appointmentsBarber = new ArrayList<>();
+        GeneralDto.Response result = new GeneralDto.Response();
         Iterable<Appointment> i = appointmentRepository.findByAppointmentDateAndBarberId(appointmentDate, barberId);//findByBarber(appointmentsFilter.date, appointmentsFilter.barberId);
         i.forEach(appointmentsBarber::add);
-        if(appointmentsBarber == null)
-            throw  new ResourceNotFoundException("Cannot find Appointment with barber id:" + (int)barberId + " Date:" + appointmentDate);
-        else
-            return appointmentsBarber;
+        if(appointmentsBarber == null){
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else{
+            result.data = appointmentsBarber;
+            return result;
+        }
     }
 
-    public List<Appointment> findDateandCustomerId (Date appointmentDate, long customerId) throws ResourceNotFoundException {
-        List<Appointment> appointmentsBarber = new ArrayList<>();
+    public GeneralDto.Response findDateandCustomerId (Date appointmentDate, long customerId) throws ResourceNotFoundException {
+        List<Appointment> appointmentsCustomer = new ArrayList<>();
+        GeneralDto.Response result = new GeneralDto.Response();
         Iterable<Appointment> i = appointmentRepository.findByAppointmentDateAndCustomerId(appointmentDate, customerId);
-        i.forEach(appointmentsBarber::add);
-        if(appointmentsBarber == null)
-            throw  new ResourceNotFoundException("Cannot find Appointment with barber id:" + customerId + " Date:" + appointmentDate);
-        else
-            return appointmentsBarber;
+        i.forEach(appointmentsCustomer::add);
+        if(appointmentsCustomer == null){
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else {
+            result.data = appointmentsCustomer;
+            return result;
+        }
     }
 
-    public List<Appointment> findDateandStaffId (Date appointmentDate, long staffId) throws ResourceNotFoundException {
-        List<Appointment> appointmentsBarber = new ArrayList<>();
-        Iterable<Appointment> i = appointmentRepository.findByAppointmentDateAndStaffId(appointmentDate, staffId);
-        i.forEach(appointmentsBarber::add);
-        if(appointmentsBarber == null)
-            throw  new ResourceNotFoundException("Cannot find Appointment with barber id:" + staffId + " Date:" + appointmentDate);
-        else
-            return appointmentsBarber;
+    public GeneralDto.Response findDateandStaffId (Date appointmentDate, long staffId) throws ResourceNotFoundException {
+        List<Appointment> appointmentsStaff = new ArrayList<>();
+        GeneralDto.Response result = new GeneralDto.Response();
+        appointmentRepository.findByAppointmentDateAndStaffId(appointmentDate, staffId).forEach(appointmentsStaff::add);
+        if(appointmentsStaff == null){
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else{
+            result.data = appointmentsStaff;
+            return result;
+        }
     }
 
-    public List<Appointment> filterDateBetween(Date startDate, Date endDate) throws ResourceNotFoundException {
+    public GeneralDto.Response filterDateBetween(Date startDate, Date endDate) throws ResourceNotFoundException {
         List<Appointment> appointmentsFilter = new ArrayList<>();
-        Iterable<Appointment> i = appointmentRepository.findByAppointmentDateBetween(startDate, endDate);
-        i.forEach(appointmentsFilter::add);
-        if(appointmentsFilter == null)
-            throw  new ResourceNotFoundException("No appointment was found between two dates\n");
-        else
-            return appointmentsFilter;
+        GeneralDto.Response result = new GeneralDto.Response();
+        appointmentRepository.findByAppointmentDateBetween(startDate, endDate).forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null){
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else {
+            result.data = appointmentsFilter;
+            return result;
+        }
     }
 
-    public List<Appointment> findByCustomerDateBefore(long customerId, Date date) throws ResourceNotFoundException {
+    public GeneralDto.Response findByCustomerDateBefore(long customerId, Date date) throws ResourceNotFoundException {
         List<Appointment> appointmentsFilter = new ArrayList<>();
-        Iterable<Appointment> i = appointmentRepository.findByCustomerIdAndAppointmentDateBefore(customerId, date);
-        i.forEach(appointmentsFilter::add);
-        if(appointmentsFilter == null)
-            throw  new ResourceNotFoundException("No appointment was found between the two dates of the employee.\n");
-        else
-            return appointmentsFilter;
+        appointmentRepository.findByCustomerIdAndAppointmentDateBefore(customerId, date).forEach(appointmentsFilter::add);
+        GeneralDto.Response result = new GeneralDto.Response();
+        if(appointmentsFilter == null){
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else{
+            result.data = appointmentsFilter;
+            return  result;
+        }
     }
 
-    public List<Appointment> findByBarberDateBefore(long barberId, Date date) throws ResourceNotFoundException {
+    public GeneralDto.Response findByBarberDateBefore(long barberId, Date date) throws ResourceNotFoundException {
         List<Appointment> appointmentsFilter = new ArrayList<>();
-        Iterable<Appointment> i = appointmentRepository.findByBarberIdAndAppointmentDateBefore(barberId, date);
-        i.forEach(appointmentsFilter::add);
-        if(appointmentsFilter == null)
-            throw  new ResourceNotFoundException("No appointment was found between the two dates of the employee.\n");
-        else
-            return appointmentsFilter;
+        GeneralDto.Response result = new GeneralDto.Response();
+        appointmentRepository.findByBarberIdAndAppointmentDateBefore(barberId, date).forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null) {
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else {
+            result.data = appointmentsFilter;
+            return result;
+        }
     }
 
-    public List<Appointment> findByStaffDateBefore(long staffId, Date date) throws ResourceNotFoundException {
+    public GeneralDto.Response findByStaffDateBefore(long staffId, Date date) throws ResourceNotFoundException {
         List<Appointment> appointmentsFilter = new ArrayList<>();
-        Iterable<Appointment> i = appointmentRepository.findByStaffIdAndAppointmentDateBefore(staffId, date);
-        i.forEach(appointmentsFilter::add);
-        if(appointmentsFilter == null)
-            throw  new ResourceNotFoundException("No appointment was found between the two dates of the employee.\n");
-        else
-            return appointmentsFilter;
+        GeneralDto.Response result = new GeneralDto.Response();
+        appointmentRepository.findByStaffIdAndAppointmentDateBefore(staffId, date).forEach(appointmentsFilter::add);
+        if(appointmentsFilter == null) {
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else {
+            result.data = appointmentsFilter;
+            return result;
+        }
     }
 
-    public List<Appointment> filterDateBetweenByStaffId(long staffId, Date startDate, Date endDate) throws ResourceNotFoundException {
+    public GeneralDto.Response filterDateBetweenByStaffId(long staffId, Date startDate, Date endDate) throws ResourceNotFoundException {
         List<Appointment> appointmentsFilter = new ArrayList<>();
+        GeneralDto.Response result = new GeneralDto.Response();
         Iterable<Appointment> i = appointmentRepository.findByStaffIdAndAppointmentDateBetween(staffId, startDate, endDate);
         i.forEach(appointmentsFilter::add);
-        if(appointmentsFilter == null)
-            throw  new ResourceNotFoundException("No appointment was found between the two dates of the employee.\n");
-        else
-            return appointmentsFilter;
+        if(appointmentsFilter == null) {
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else {
+            result.data = appointmentsFilter;
+            return result;
+        }
     }
 
-    public List<Appointment> filterDateBetweenByBarberId(long barberId, Date startDate, Date endDate) throws ResourceNotFoundException {
+    public GeneralDto.Response filterDateBetweenByBarberId(long barberId, Date startDate, Date endDate) throws ResourceNotFoundException {
         List<Appointment> appointmentsFilter = new ArrayList<>();
+        GeneralDto.Response result = new GeneralDto.Response();
         Iterable<Appointment> i = appointmentRepository.findByBarberIdAndAppointmentDateBetween(barberId, startDate, endDate);
         i.forEach(appointmentsFilter::add);
-        if(appointmentsFilter == null)
-            throw  new ResourceNotFoundException("No appointment was found between the two dates of the barber.\n");
-        else
-            return appointmentsFilter;
+        if(appointmentsFilter == null) {
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else {
+            result.data = appointmentsFilter;
+            return result;
+        }
     }
 
-    public List<Appointment> filterDateBetweenByCustomerId(long customerId, Date startDate, Date endDate) throws ResourceNotFoundException {
+    public GeneralDto.Response filterDateBetweenByCustomerId(long customerId, Date startDate, Date endDate) throws ResourceNotFoundException {
         List<Appointment> appointmentsFilter = new ArrayList<>();
+        GeneralDto.Response result = new GeneralDto.Response();
         Iterable<Appointment> i = appointmentRepository.findByCustomerIdAndAppointmentDateBetween(customerId, startDate, endDate);
         i.forEach(appointmentsFilter::add);
-        if(appointmentsFilter == null)
-            throw  new ResourceNotFoundException("No appointment was found between the two dates of the customer.\n");
-        else
-            return appointmentsFilter;
+        if(appointmentsFilter == null) {
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else {
+            result.data = appointmentsFilter;
+            return result;
+        }
     }
 
-    public List<Appointment> findByStaffIdMonthly(long staffId) throws ResourceNotFoundException {
+    public GeneralDto.Response findByStaffIdMonthly(long staffId) throws ResourceNotFoundException {
         List<Appointment> appointmentsFilter = new ArrayList<>();
+        GeneralDto.Response result = new GeneralDto.Response();
         Date date = new Date();
         Date lastMonth = DateUtils.addMonths(date, -1);
         Iterable<Appointment> i = appointmentRepository.findByStaffIdAndAppointmentDateAfter(staffId, lastMonth);
         i.forEach(appointmentsFilter::add);
-        if(appointmentsFilter == null)
-            throw  new ResourceNotFoundException("No appointment was found after the dates of the employee.\n");
-        else
-            return appointmentsFilter;
+        if(appointmentsFilter == null) {
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else {
+            result.data = appointmentsFilter;
+            return result;
+        }
     }
 
-    public List<Appointment> findByBarberIdMonthly(long barberId) throws ResourceNotFoundException {
+    public GeneralDto.Response findByBarberIdMonthly(long barberId) throws ResourceNotFoundException {
         List<Appointment> appointmentsFilter = new ArrayList<>();
+        GeneralDto.Response result = new GeneralDto.Response();
         Date date = new Date();
         Date lastMonth = DateUtils.addMonths(date, -1);
         Iterable<Appointment> i = appointmentRepository.findByBarberIdAndAppointmentDateAfter(barberId, lastMonth);
         i.forEach(appointmentsFilter::add);
-        if(appointmentsFilter == null)
-            throw  new ResourceNotFoundException("No appointment was found monthly the dates of the barber.\n");
-        else
-            return appointmentsFilter;
+        if(appointmentsFilter == null) {
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else {
+            result.data = appointmentsFilter;
+            return result;
+        }
     }
 
-    public List<Appointment> findByCustomerIdMonthly(long customerId) throws ResourceNotFoundException {
+    public GeneralDto.Response findByCustomerIdMonthly(long customerId) throws ResourceNotFoundException {
         List<Appointment> appointmentsFilter = new ArrayList<>();
+        GeneralDto.Response result = new GeneralDto.Response();
         Date date = new Date();
         Date lastMonth = DateUtils.addMonths(date, -1);
         Iterable<Appointment> i = appointmentRepository.findByCustomerIdAndAppointmentDateAfter(customerId, lastMonth);
         i.forEach(appointmentsFilter::add);
-        if(appointmentsFilter == null)
-            throw  new ResourceNotFoundException("No appointment was found after the dates of the customer.\n");
-        else
-            return appointmentsFilter;
+        if(appointmentsFilter == null) {
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
+        }
+        else {
+            result.data = appointmentsFilter;
+            return result;
+        }
     }
 
 
     //Randevu ekleme
-    public Appointment save(Appointment appointment) throws BadResourceException, ResourceNotFoundException, ResourceAlreadyExistsException, ParseException {
+    public GeneralDto.Response save(Appointment appointment) throws BadResourceException, ResourceNotFoundException, ResourceAlreadyExistsException, ParseException {
+        GeneralDto.Response result = new GeneralDto.Response();
         if(!StringUtils.isEmpty(appointment.getAppointmentDate()) && !StringUtils.isEmpty(appointment.getAppointmentEndDate())){
             //hoursStatusService.whenAddAppointmentUpdate(appointment);
-            if(appointment.getId() != 0 && existById(appointment.getId()))
-                throw  new ResourceNotFoundException("Appointment with id " + appointment.getId() + "already exists" );
-            hoursStatusService.whenAddAppointmentUpdate(appointment);
-            return  appointmentRepository.save(appointment);
+            if(appointment.getId() != 0 && existById(appointment.getId())) {
+                result.Error = true;
+                result.Message = "Randevu bulunamadı!";
+                return result;
+            }
+            boolean hourStatusControl = hoursStatusService.whenAddAppointmentUpdate(appointment);
+            if(hourStatusControl == true) {
+                appointmentRepository.save(appointment);
+                result.data = appointment;
+                return result;
+            }
+            else {
+                result.Error = true;
+                result.Message = "Çalışan randevu saatleri arasında müsait değil!";
+                return result;
+            }
         }
         else {
-            BadResourceException exc = new BadResourceException("Failed to save appointment");
-            exc.addErrorMessage("Appointment is null or empty");
-            throw exc;
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
         }
     }
     //Randevu tarih guncelleme
-    public Appointment update(Appointment appointment) throws ResourceNotFoundException, BadResourceException {
+    public GeneralDto.Response update(Appointment appointment) throws ResourceNotFoundException, BadResourceException {
+        GeneralDto.Response result = new GeneralDto.Response();
         if(!existById(appointment.getBarberId())) {
-            if(!existById( appointment.getId()))
-                throw new ResourceNotFoundException("Appointment find Contact with id: " + appointment.getId());
-            return appointmentRepository.save(appointment);
+            if(!existById( appointment.getId())) {
+                result.Error = true;
+                result.Message = "Randevu bulunamadı!";
+                return result;
+            }
+            appointmentRepository.save(appointment);
+            result.data = appointment;
+            return result;
         }
         else {
-            BadResourceException exc = new BadResourceException("Failed to save appointment");
-            exc.addErrorMessage("Appointment is null or empty");
-            throw exc;
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
         }
     }
-    public Appointment appointmentFindById(long id) throws ResourceNotFoundException {
+    public GeneralDto.Response appointmentFindById(long id) throws ResourceNotFoundException {
+        GeneralDto.Response result = new GeneralDto.Response();
         if(!existById(id)) {
-            throw new ResourceNotFoundException("Cannot find appointment with id: " + id);
+            result.Error = true;
+            result.Message = "Randevu bulunamadı!";
+            return result;
         }
         else {
-            Appointment appointmentInfo = appointmentRepository.AppointmentfindById(id);
-            return appointmentInfo;
+            result.data = appointmentRepository.AppointmentfindById(id);
+            return result;
         }
     }
     //Idye gore silme
@@ -294,7 +425,7 @@ public class AppointmentService {
             throw new ResourceNotFoundException("Cannot find appointment with id: " + id);
         }
         else {
-            Appointment appointmentInfos = appointmentFindById(id);
+            Appointment appointmentInfos = appointmentRepository.AppointmentfindById(id);
             hoursStatusService.whenDeleteAppointmentUpdate(appointmentInfos);
             appointmentRepository.deleteById(id);
         }

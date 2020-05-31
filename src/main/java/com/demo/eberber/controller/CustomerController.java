@@ -1,6 +1,7 @@
 package com.demo.eberber.controller;
 
 import com.demo.eberber.Dto.CustomerDto;
+import com.demo.eberber.Dto.GeneralDto;
 import com.demo.eberber.domain.Address;
 import com.demo.eberber.domain.Customer;
 import com.demo.eberber.exception.BadResourceException;
@@ -42,35 +43,30 @@ public class CustomerController {
     private CustomerService CustomerService;
     
     @GetMapping(value = "/Customers", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Customer>> findAll(
-            @RequestParam(value="page", defaultValue="1") int pageNumber,
-            @RequestParam(required=false) String name) {
-        if (StringUtils.isEmpty(name)) {
+    public ResponseEntity<GeneralDto.Response> findAll(
+            @RequestParam(value="page", defaultValue="1") int pageNumber) {
+        try {
             return ResponseEntity.ok(CustomerService.findAll(pageNumber, ROW_PER_PAGE));
-        }
-        else {
-            return ResponseEntity.ok(CustomerService.findAllByName(name, pageNumber, ROW_PER_PAGE));
+        } catch ( Exception ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
     //@PostMapping(value = "/Customers/getCustomer")
     @GetMapping(value = "/Customers/getCustomer/{CustomerId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Customer> findCustomerById(@PathVariable long CustomerId) {
+    public ResponseEntity<GeneralDto.Response> findCustomerById(@PathVariable long CustomerId) {
         try {
-            Customer customer = CustomerService.findById((int) CustomerId);
-            return ResponseEntity.ok(customer);  // return 200, with json body
+            return ResponseEntity.ok(CustomerService.findById((int) CustomerId));  // return 200, with json body
         } catch (ResourceNotFoundException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // return 404, with null body
         }
     }
 
     @PostMapping(value = "/Customers/add")
-    public ResponseEntity<Customer> addCustomer(@Valid @RequestBody Customer Customer)
+    public ResponseEntity<GeneralDto.Response> addCustomer(@Valid @RequestBody Customer Customer)
             throws URISyntaxException {
         try {
-            Customer newCustomer = CustomerService.save(Customer);
-            return ResponseEntity.created(new URI("/api/Customers/" + newCustomer.getId()))
-                    .body(Customer);
+            return ResponseEntity.ok(CustomerService.save(Customer));
         } catch (ResourceAlreadyExistsException ex) {
             // log exception first, then return Conflict (409)
             logger.error(ex.getMessage());
@@ -83,7 +79,7 @@ public class CustomerController {
     }
     
     @PutMapping(value = "/Customers/edit/{CustomerId}")
-    public ResponseEntity<Customer> updateCustomer(@Valid @RequestBody Customer Customer, 
+    public ResponseEntity<GeneralDto.Response> updateCustomer(@Valid @RequestBody Customer Customer,
             @PathVariable int CustomerId) {
         try {
             Customer.setId(CustomerId);
@@ -100,7 +96,7 @@ public class CustomerController {
     }
     
     @PatchMapping("/Customers/updateAddress/{CustomerId}")
-    public ResponseEntity<Void> updateAddress(@PathVariable long CustomerId,
+    public ResponseEntity<GeneralDto.Response> updateAddress(@PathVariable long CustomerId,
             @RequestBody Address address) throws ResourceNotFoundException {
         /*try {
             CustomerService.updateAddress(CustomerId, address);
@@ -110,12 +106,17 @@ public class CustomerController {
             logger.error(ex.getMessage());
             return ResponseEntity.notFound().build();
         }*/
-    	CustomerService.updateAddress((int) CustomerId, address);
- 		return ResponseEntity.ok().build();
+        try {
+            return ResponseEntity.ok(CustomerService.updateAddress((int) CustomerId, address));
+        } catch (Exception ex) {
+            // log exception first, then return Bad Request (400)
+            logger.error(ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @PostMapping(value = "/Customers/login")
-    public ResponseEntity<Customer> loginCustomer(@Valid @RequestBody Customer customer)
+    public ResponseEntity<GeneralDto.Response> loginCustomer(@Valid @RequestBody Customer customer)
             throws URISyntaxException {
         try {
             return ResponseEntity.ok(CustomerService.Login(customer.geteMail(),customer.getPassword()));
@@ -126,22 +127,22 @@ public class CustomerController {
     }
 
     @PostMapping(value = "/Customers/forgotpassword")
-    public String forgotPasswordCustomer(@Valid @RequestBody Customer eMail)
+    public ResponseEntity<GeneralDto.Response> forgotPasswordCustomer(@Valid @RequestBody Customer eMail)
             throws URISyntaxException {
         try{
-            return CustomerService.sendMailForForgotPw(eMail.geteMail());
+            return ResponseEntity.ok(CustomerService.sendMailForForgotPw(eMail.geteMail()));
         }catch (Exception ex) {
+            // log exception first, then return Bad Request (400)
             logger.error(ex.getMessage());
-            return ex.getMessage();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @PostMapping(value = "/Customers/updatePassword")
-    public ResponseEntity<CustomerDto.updatePassword> updatePasswordCustomer(@Valid @RequestBody CustomerDto.updatePassword customerPassword)
+    public ResponseEntity<GeneralDto.Response> updatePasswordCustomer(@Valid @RequestBody CustomerDto.updatePassword customerPassword)
             throws URISyntaxException {
         try {
-            CustomerService.updatePassword(customerPassword.password,customerPassword.controlPassword, customerPassword.id);
-            return ResponseEntity.created(new URI("/customers/changePassword/" + customerPassword.id)).body(customerPassword);
+            return ResponseEntity.ok(CustomerService.updatePassword(customerPassword.password,customerPassword.controlPassword, customerPassword.id));
         } catch (ResourceNotFoundException ex ) {
             logger.error(ex.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//400
@@ -149,11 +150,12 @@ public class CustomerController {
     }
 
     @PostMapping(value = "/Customers/changePassword")
-    public ResponseEntity<Void> changePasswordCustomer(@Valid @RequestBody CustomerDto.changePassword changePassword)
+    public ResponseEntity<GeneralDto.Response> changePasswordCustomer(@Valid @RequestBody CustomerDto.changePassword changePassword)
             throws URISyntaxException {
         try {
-            CustomerService.changePassword(changePassword);
-            return (ResponseEntity<Void>) ResponseEntity.created(new URI("/customers/changePassword/" + changePassword.eMail));
+
+            return ResponseEntity.ok(CustomerService.changePassword(changePassword));
+            //return (ResponseEntity<Void>) ResponseEntity.created(new URI("/customers/changePassword/" + changePassword.eMail));
         } catch (Exception ex ) {
             logger.error(ex.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//400

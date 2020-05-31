@@ -2,6 +2,7 @@ package com.demo.eberber.service;
 
 
 import com.demo.eberber.Dto.CustomerDto;
+import com.demo.eberber.Dto.GeneralDto;
 import com.demo.eberber.domain.Address;
 import com.demo.eberber.domain.Customer;
 import com.demo.eberber.exception.BadResourceException;
@@ -32,77 +33,109 @@ public class CustomerService {
         return customerRepository.existsById(i);
     }
     
-    public Customer findById(int id) throws ResourceNotFoundException {
+    public GeneralDto.Response findById(int id) throws ResourceNotFoundException {
+        GeneralDto.Response result = new GeneralDto.Response();
         Customer Customer = customerRepository.findById(id);
         if (Customer==null) {
-            throw new ResourceNotFoundException("Cannot find Customer with id: " + id);
+            result.Error = true;
+            result.Message = "Müşteri bulunamadı!";
+            return result;
         }
-        else return Customer;
+        else {
+            result.data = Customer;
+            return result;
+        }
     }
 
-    public List<Customer> findAll(int pageNumber, int rowPerPage) {
+    public GeneralDto.Response findAll(int pageNumber, int rowPerPage) {
+        GeneralDto.Response result = new GeneralDto.Response();
         List<Customer> Customers = new ArrayList<>();
-        customerRepository.findAll(PageRequest.of(pageNumber - 1, rowPerPage)).forEach(Customers::add);
-        return Customers;
+        customerRepository.findAll().forEach(Customers::add);
+        result.data = Customers;
+        return result;
     }
     
-    public List<Customer> findAllByName(String name, int pageNumber, int rowPerPage) {
+    public GeneralDto.Response findAllByName(String name, int pageNumber, int rowPerPage) {
+        GeneralDto.Response result = new GeneralDto.Response();
         Customer filter = new Customer();
         filter.setName(name);
         Specification<Customer> spec = new CustomerSpecification(filter);
         
         List<Customer> Customers = new ArrayList<>();
         customerRepository.findAll(spec, PageRequest.of(pageNumber - 1, rowPerPage)).forEach(Customers::add);
-        return Customers;
+        result.data = Customers;
+        return result;
     }
     
-    public Customer save(Customer Customer) throws BadResourceException, ResourceAlreadyExistsException {
-        //Customer customer = customerRepository.findByeMail(Customer.geteMail());
-        if(false)
-            throw  new ResourceAlreadyExistsException("Your e-mail address is in the system.\n");
+    public GeneralDto.Response save(Customer Customer) throws BadResourceException, ResourceAlreadyExistsException {
+        Customer customer = new Customer();
+        customer = customerRepository.findByeMail(Customer.geteMail());
+        GeneralDto.Response result = new GeneralDto.Response();
+        if(customer != null){
+            result.Error = true;
+            result.Message = "Bu mail adresine ait hesap var!";
+            return result;
+        }
         if (!StringUtils.isEmpty(Customer.getName())) {
             if (Customer.getId() != 0 && existsById(Long.valueOf(Customer.getId()))) {
-                throw new ResourceAlreadyExistsException("Customer with id: " + Customer.getId() +
-                        " already exists");
+                result.Error = true;
+                result.Message = "Bir hata oluştu! Lütfen tekrar deneyin.";
+                return result;
             }
-            if(Customer.geteMail() == null || Customer.getPassword().length() < 6 )
-                throw new ResourceAlreadyExistsException("Your information was entered incorrectly.\n");
-            return customerRepository.save(Customer);
+            if(Customer.geteMail() == null || Customer.getPassword().length() < 6 ) {
+                result.Error = true;
+                result.Message = "Şifreniz belirtilen kriterlere uymuyor!";
+                return result;
+            }
+            customerRepository.save(Customer);
+            result.data = Customer;
+
+            return result;
         }
         else {
-            BadResourceException exc = new BadResourceException();
-            exc.addErrorMessage("Customer is null or empty");
-            throw exc;
+            result.Error = true;
+            result.Message = "Bir hata oluştu! Lütfen tekrar deneyin.";
+            return result;
         }
     }
     
-    public Customer update(Customer Customer)
+    public GeneralDto.Response update(Customer Customer)
             throws BadResourceException, ResourceNotFoundException {
+        GeneralDto.Response result = new GeneralDto.Response();
         if (!StringUtils.isEmpty(Customer.getName())) {
             if (Customer.geteMail() == null) {
-                throw new ResourceNotFoundException("Cannot find Customer with id: " + Customer.getId());
+                result.Error = true;
+                result.Message = "Bir hata oluştu! Lütfen tekrar deneyin.";
+                return result;
             }
-            return customerRepository.save(Customer);
+            result.data = customerRepository.save(Customer);
+            return result;
         }
         else {
-            BadResourceException exc = new BadResourceException("Failed to save Customer");
-            exc.addErrorMessage("Customer is null or empty");
-            throw exc;
+            result.Error = true;
+            result.Message = "Bir hata oluştu! Lütfen tekrar deneyin.";
+            return result;
         }
     }
     
-    public void updateAddress(int id, Address address) 
+    public GeneralDto.Response updateAddress(int id, Address address)
             throws ResourceNotFoundException {
-        Customer customer = findById(id);
-        customer.setAddress(address.getAddressDetail());
-        customer.setUserCity(address.getCity());
-        customer.setUserDistrict(address.getDistrict());
-        customer.setUserNeighborhood(address.getNeighborhood());
-        /*Customer.setAddress1(address.getAddress1());
-        Customer.setAddress2(address.getAddress2());
-        Customer.setAddress3(address.getAddress3());
-        Customer.setPostalCode(address.getPostalCode());*/
-        customerRepository.save(customer);
+        GeneralDto.Response result = new GeneralDto.Response();
+        try {
+            Customer customer = customerRepository.findById(id);
+            customer.setAddress(address.getAddressDetail());
+            customer.setUserCity(address.getCity());
+            customer.setUserDistrict(address.getDistrict());
+            customer.setUserNeighborhood(address.getNeighborhood());
+            customerRepository.save(customer);
+            result.data = customer;
+            return result;
+        } catch (Exception ex) {
+            result.Error = true;
+            result.Message = "Bir hata oluştu! Lütfen tekrar deneyin.";
+            return result;
+        }
+
     }
     
     public void deleteById(Long id) throws ResourceNotFoundException {
@@ -114,50 +147,69 @@ public class CustomerService {
         }
     }
 
-    public Customer Login(String eMail, String password) throws ResourceNotFoundException{
-        Customer result = customerRepository.findByeMailAndPassword(eMail, password);
-        if(result != null){
+    public GeneralDto.Response Login(String eMail, String password) throws ResourceNotFoundException{
+        Customer customer = customerRepository.findByeMailAndPassword(eMail, password);
+        GeneralDto.Response result = new GeneralDto.Response();
+        if(customer != null){
+            result.data = customer;
             return result;
         }
         else {
-            throw new ResourceNotFoundException("Cannot find customer with email: " + eMail);
+            result.Error = true;
+            result.Message = "Bu mail adresi kayıtlı değil! Lütfen kayıt olun.";
+            return result;
         }
     }
 
-    public String sendMailForForgotPw(String eMail){
-       Customer customer = customerRepository.findByeMail(eMail);
-       if(customer != null){
+    public GeneralDto.Response sendMailForForgotPw(String eMail){
+        GeneralDto.Response result = new GeneralDto.Response();
+        Customer customer = customerRepository.findByeMail(eMail);
+        if(customer != null){
            mailService.sendMail(eMail);
-           return "Mail adresinize şifre değiştirme maili gönderilmiştir.";
-       }
-       else{
-           return "Mailiniz yanlış.";
-       }
+           result.data = eMail;
+           return result;
+        }
+        else{
+            result.Error = true;
+            result.Message = "Bu mail adresi kayıtlı değil!";
+            return result;
+        }
 
     }
-    public String changePassword(CustomerDto.changePassword changePassword){
-        Customer resultCustomer;
+    public GeneralDto.Response changePassword(CustomerDto.changePassword changePassword){
+        GeneralDto.Response result = new GeneralDto.Response();
+        Customer resultCustomer = new Customer();
         resultCustomer = customerRepository.findByeMail(changePassword.eMail);
         if(resultCustomer != null) {
             if (changePassword.password == changePassword.controlPassword) {
                 resultCustomer.setPassword(changePassword.password);
                 customerRepository.save(resultCustomer);
-                return "Şifreniz başarıyla değişti.";
+                result.data = resultCustomer;
+                return result;
             } else {
-                return "Şifreniz uyuşmuyor.";
+                result.Error = true;
+                result.Message = "Şifreni uyuşmuyor!";
+                return result;
             }
         } else {
-            return  "Mailiniz yanlış!";
+            result.Error = true;
+            result.Message = "Böyle bir mail kayıtlı değil!";
+            return result;
         }
     }
-    public void updatePassword(String password, String controlPassword, long id) throws ResourceNotFoundException{
+    public GeneralDto.Response updatePassword(String password, String controlPassword, long id) throws ResourceNotFoundException{
+        GeneralDto.Response result = new GeneralDto.Response();
         if(password == controlPassword){
-            Customer customer = findById((int) id);
+            Customer customer = customerRepository.findById((int) id);
             customer.setPassword(password);
             customerRepository.save(customer);
+            result.data = customer;
+            return result;
         }
         else {
-            throw new ResourceNotFoundException("Your information should not be empty.\n.");
+            result.Error = true;
+            result.Message = "Bir hata oluştu! Lütfen tekrar deneyin.";
+            return result;
         }
     }
 

@@ -1,5 +1,6 @@
 package com.demo.eberber.controller;
 
+import com.demo.eberber.Dto.GeneralDto;
 import com.demo.eberber.domain.HoursStatus;
 import com.demo.eberber.domain.WorkHours;
 import com.demo.eberber.exception.ResourceNotFoundException;
@@ -110,13 +111,21 @@ public class WorkHoursController {
     }
 
     @PutMapping(value="/WorkHours/put")
-    public ResponseEntity<WorkHours> updateWorkHours(@Valid @RequestBody WorkHours workHours ) throws ParseException {
+    public ResponseEntity<GeneralDto.Response> updateWorkHours(@Valid @RequestBody WorkHours workHours ) throws ParseException {
         try {
+            GeneralDto.Response result = new GeneralDto.Response();
             WorkHours oldWorkHours = workHoursService.findById(workHours.getId());
-            hoursStatusService.whenDeleteWorkHoursDeleted(oldWorkHours);
-            hoursStatusService.save(workHours);
-            workHoursService.update(workHours);
-            return ResponseEntity.ok(workHours);
+            boolean hourstatusControl = hoursStatusService.whenDeleteWorkHoursDeleted(oldWorkHours);
+            if(hourstatusControl == true){
+                hoursStatusService.save(workHours);
+                workHoursService.update(workHours);
+                result.data = workHours;
+                return ResponseEntity.ok(result);
+            } else {
+                result.Error = true;
+                result.Message = "Silmek istediğiniz saatte çalışanın randevusu bulunuyor! ";
+                return ResponseEntity.ok(result);
+            }
         }catch (ResourceNotFoundException ex) {
             // log exception first, then return Not Found (404)
             logger.error(ex.getMessage());
@@ -129,13 +138,12 @@ public class WorkHoursController {
     }
 
     @DeleteMapping(path = "/WorkHours/delete/{id}")
-    public ResponseEntity<WorkHours> deleteWorkHoursById(@PathVariable long id ) {
+    public ResponseEntity<GeneralDto.Response> deleteWorkHoursById(@PathVariable long id ) {
         try {
-            workHoursService.deleteById( id);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(workHoursService.deleteById( id));
         } catch (ResourceNotFoundException | BadResourceException | ParseException e) {
             logger.error(e.getMessage());
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }

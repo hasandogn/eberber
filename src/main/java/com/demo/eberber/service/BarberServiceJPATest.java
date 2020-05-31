@@ -9,6 +9,8 @@ import javax.sql.DataSource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import com.demo.eberber.repository.BarberRepository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,10 +24,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class BarberServiceJPATest {
     @Autowired
-    private DataSource dataSource;
+    private BarberService barberService;
 
     @Autowired
-    private BarberService barberService;
+    BarberRepository barberRepository;
 
     @Rule
     public  ExpectedException exceptionRule = ExpectedException.none();
@@ -44,7 +46,7 @@ public class BarberServiceJPATest {
         barberService.save(b);
         assertNotNull(b.getId());
 
-        Barber findBarber = barberService.findById(b.getId());
+        Barber findBarber = barberRepository.findById(b.getId());
         assertEquals("kuaför Mahmut", findBarber.getBarberName());
         assertEquals("abc@123.com", findBarber.geteMail());
 
@@ -53,7 +55,7 @@ public class BarberServiceJPATest {
         barberService.update(b);
 
         //guncelleme sonrasi test
-        findBarber = barberService.findById(b.getId());
+        findBarber = barberRepository.findById(b.getId());
         assertEquals("def@456.com", findBarber.geteMail());
 
         //silme testi

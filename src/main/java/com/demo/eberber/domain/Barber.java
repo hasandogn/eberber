@@ -55,7 +55,7 @@ public class Barber implements Serializable {
         this.password = password;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 

@@ -1,6 +1,7 @@
 package com.demo.eberber.controller;
 
 import com.demo.eberber.Dto.AppointmentDto;
+import com.demo.eberber.Dto.GeneralDto;
 import com.demo.eberber.domain.Appointment;
 import com.demo.eberber.Dto.AppointmentDto.*;
 import com.demo.eberber.exception.ResourceNotFoundException;
@@ -46,57 +47,55 @@ public class AppointmentController {
     }
 
     @GetMapping(value = "/Appointments", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findAll (
-            @RequestParam(value ="page", defaultValue = "1") int pageNumber,
-            @RequestParam(required = false) Long id ) throws ResourceNotFoundException {
-        if(StringUtils.isEmpty(id)) {
+    public ResponseEntity<GeneralDto.Response> findAll (
+            @RequestParam(value ="page", defaultValue = "1") int pageNumber) throws ResourceNotFoundException {
+        try {
             return ResponseEntity.ok(appointmentService.findAll(pageNumber, 500));
         }
-        else {
-            return ResponseEntity.ok(appointmentService.findAllByBarberId(Math.toIntExact(id)));
+        catch (Exception e) {
+            return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);//409
         }
     }
 
     @GetMapping(value = "/Appointments/barber/{barberId}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findAppointmentsWithBarberId(@PathVariable int barberId) {
+    public ResponseEntity<GeneralDto.Response> findAppointmentsWithBarberId(@PathVariable int barberId) {
         try{
-            List<Appointment> ap = appointmentService.findAllByBarberId(barberId);
-            return  ResponseEntity.ok(ap);
+            return  ResponseEntity.ok(appointmentService.findAllByBarberId(barberId));
         } catch (ResourceNotFoundException e) {
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);//409
         }
     }
     //Calisana Gore randevuları getirir.
     @GetMapping(value = "/Appointments/staff/{staffId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public  ResponseEntity<List<Appointment>> findAppointmentsWithStaffId(@PathVariable long staffId) {
+    public  ResponseEntity<GeneralDto.Response> findAppointmentsWithStaffId(@PathVariable long staffId) {
         try{
             return ResponseEntity.ok(appointmentService.findAllByStaffId(staffId));
         } catch (ResourceNotFoundException e) {
             logger.error(e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();//409
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();//409
         }
     }
     //Berberin belirlediği tarihteki randebuları döndürülür.
     @PostMapping(value = "/Appointments/barberFilter", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findAppointmentsWithDateandBarberId(@Valid @RequestBody Appointment appointment) {
+    public ResponseEntity<GeneralDto.Response> findAppointmentsWithDateandBarberId(@Valid @RequestBody Appointment appointment) {
         try{
             return  ResponseEntity.ok(appointmentService.findDateandBarberId(appointment.getAppointmentDate(), appointment.getBarberId()));
         }catch (Exception e) {
             logger.error(e.getMessage());
-            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
     @PostMapping(value = "/Appointments/staffFilter", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findAppointmentsWithDateandStaffId(@Valid @RequestBody Appointment appointment) {
+    public ResponseEntity<GeneralDto.Response> findAppointmentsWithDateandStaffId(@Valid @RequestBody Appointment appointment) {
         try{
             return  ResponseEntity.ok(appointmentService.findDateandBarberId(appointment.getAppointmentDate(), appointment.getStaffId()));
         }catch (Exception e) {
             logger.error(e.getMessage());
-            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
     @PostMapping(value = "/Appointments/withDate", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findAppointmentsWithDate(@RequestBody Appointment appointment) {
+    public ResponseEntity<GeneralDto.Response> findAppointmentsWithDate(@RequestBody Appointment appointment) {
         try{
             return  ResponseEntity.ok(appointmentService.findAllByDate(appointment.getAppointmentDate()));
         }catch (Exception e) {
@@ -108,7 +107,7 @@ public class AppointmentController {
 
     //Berberin belirlediği tarihteki randebuları döndürülür.
     @PostMapping(value = "/Appointments/customerFilter", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findAppointmentsWithDateandCustomerId(@RequestBody Appointment appointment) {
+    public ResponseEntity<GeneralDto.Response> findAppointmentsWithDateandCustomerId(@RequestBody Appointment appointment) {
         try{
             return  ResponseEntity.ok(appointmentService.findDateandCustomerId(appointment.getAppointmentDate(), appointment.getCustomerId()));
         }catch (Exception e) {
@@ -118,10 +117,9 @@ public class AppointmentController {
     }
 
     @GetMapping(value = "/Appointments/customer/{customerId}",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findAppointmentsWithCustomerId(@PathVariable long customerId) {
+    public ResponseEntity<GeneralDto.Response> findAppointmentsWithCustomerId(@PathVariable long customerId) {
         try{
-            List<Appointment> ap = appointmentService.findAllByCustomerId(customerId);
-            return ResponseEntity.ok(ap);
+            return ResponseEntity.ok(appointmentService.findAllByCustomerId(customerId));
         } catch (Exception e) {
             logger.error(e.getMessage());
             return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);//409
@@ -129,26 +127,26 @@ public class AppointmentController {
     }
 
     @PostMapping(value = "/Appointments/dateBefore/customer", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findCustomerDateBefore(@RequestBody Appointment appointment) {
+    public ResponseEntity<GeneralDto.Response> findCustomerDateBefore(@RequestBody Appointment appointment) {
         try{
             return  ResponseEntity.ok(appointmentService.findByCustomerDateBefore(appointment.getCustomerId(), appointment.getAppointmentDate()));
         }catch (Exception e) {
             logger.error(e.getMessage());
-            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @PostMapping(value = "/Appointments/monthly/customer", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findCustomerMonthly(@RequestBody Appointment appointment) {
+    public ResponseEntity<GeneralDto.Response> findCustomerMonthly(@RequestBody Appointment appointment) {
         try{
             return  ResponseEntity.ok(appointmentService.findByCustomerIdMonthly(appointment.getCustomerId()));
         }catch (Exception e) {
             logger.error(e.getMessage());
-            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
     @PostMapping(value = "/Appointments/monthly/barber", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findBarberMonthly(@RequestBody Appointment appointment) {
+    public ResponseEntity<GeneralDto.Response> findBarberMonthly(@RequestBody Appointment appointment) {
         try{
             return  ResponseEntity.ok(appointmentService.findByBarberIdMonthly(appointment.getBarberId()));
         }catch (Exception e) {
@@ -158,42 +156,43 @@ public class AppointmentController {
     }
 
     @PostMapping(value = "/Appointments/monthly/staff", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findStaffMonthly(@RequestBody Appointment appointment) {
+    public ResponseEntity<GeneralDto.Response> findStaffMonthly(@RequestBody Appointment appointment) {
         try{
             return  ResponseEntity.ok(appointmentService.findByStaffIdMonthly(appointment.getStaffId()));
         }catch (Exception e) {
             logger.error(e.getMessage());
-            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @PostMapping(value = "/Appointments/dateBefore/barber", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findBarberDateBefore(@RequestBody Appointment appointment) {
+    public ResponseEntity<GeneralDto.Response> findBarberDateBefore(@RequestBody Appointment appointment) {
         try{
             return  ResponseEntity.ok(appointmentService.findByBarberDateBefore(appointment.getBarberId(), appointment.getAppointmentDate()));
         }catch (Exception e) {
             logger.error(e.getMessage());
-            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @PostMapping(value = "/Appointments/dateBefore/staff", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Appointment>> findStaffDateBefore(@RequestBody Appointment appointment) {
+    public ResponseEntity<GeneralDto.Response> findStaffDateBefore(@RequestBody Appointment appointment) {
         try{
             return  ResponseEntity.ok(appointmentService.findByBarberDateBefore(appointment.getStaffId(), appointment.getAppointmentDate()));
         }catch (Exception e) {
             logger.error(e.getMessage());
-            return  ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
 
     @PostMapping(value = "/Appointments/add")
-    public ResponseEntity<Appointment> addAppointment(@Valid @RequestBody Appointment appointment)
+    public ResponseEntity<GeneralDto.Response> addAppointment(@Valid @RequestBody Appointment appointment)
         throws URISyntaxException {
         try {
-            Appointment newAppointment = appointmentService.save(appointment);
-            return ResponseEntity.created(new URI("/Appointments/add/" + newAppointment.getId())).body(appointment);
+            return ResponseEntity.ok(appointmentService.save(appointment));
+           // Appointment newAppointment = appointmentService.save(appointment);
+            //return ResponseEntity.created(new URI("/Appointments/add/" + newAppointment.getId())).body(appointment);
         } catch (ResourceNotFoundException e) {
             logger.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -206,11 +205,11 @@ public class AppointmentController {
         }
     }
     @PutMapping(value="/Appointments/put/{id}")
-    public ResponseEntity<Appointment> updateAppointment(@Valid @RequestBody Appointment appointment,@PathVariable int id ) {
+    public ResponseEntity<GeneralDto.Response> updateAppointment(@Valid @RequestBody Appointment appointment,@PathVariable int id ) {
         try {
             appointment.setId(id);
-            appointmentService.update(appointment);
-            return ResponseEntity.ok().build();
+
+            return ResponseEntity.ok(appointmentService.update(appointment));
         }catch (ResourceNotFoundException ex) {
             // log exception first, then return Not Found (404)
             logger.error(ex.getMessage());

@@ -2,6 +2,7 @@ package com.demo.eberberApp;
 
 import com.demo.eberber.domain.Customer;
 import com.demo.eberber.exception.ResourceNotFoundException;
+import com.demo.eberber.repository.CustomerRepository;
 import com.demo.eberber.service.CustomerService;
 import org.junit.Rule;
 import org.junit.Test;
@@ -23,6 +24,9 @@ class CustomerAppApplicationTests {
 	@Autowired
 	private CustomerService CustomerService;
 
+	@Autowired
+	private CustomerRepository customerRepository;
+
 	@Rule
 	public ExpectedException exceptionRule = ExpectedException.none();
 
@@ -36,7 +40,7 @@ class CustomerAppApplicationTests {
 		CustomerService.save(c);
 		assertNotNull(c.getId());
 
-		Customer findCustomer = CustomerService.findById(c.getId());
+		Customer findCustomer = customerRepository.findById(c.getId());
 		assertEquals("Portgas D. Ace", findCustomer.getName());
 		assertEquals("ace@whitebeard.com", findCustomer.geteMail());
 
@@ -45,7 +49,7 @@ class CustomerAppApplicationTests {
 		CustomerService.update(c);
 
 		// test after update
-		findCustomer = CustomerService.findById(c.getId());
+		findCustomer = customerRepository.findById(c.getId());
 		assertEquals("ace@whitebeardpirat.es", findCustomer.geteMail());
 
 		// test delete
